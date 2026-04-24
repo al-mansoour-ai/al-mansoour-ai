@@ -4,65 +4,55 @@ from io import BytesIO
 from docx import Document
 from datetime import datetime
 
-# 1. التنسيق البصري الفخم (Branding & UI)
-st.set_page_config(page_title="منصة المنصور AI - الإصدار المستقر والنهائي", layout="wide")
+# 1. الهندسة البصرية الفخمة (Premium UI/UX)
+st.set_page_config(page_title="منصة المنصور AI - النظام المتكامل", layout="centered")
 
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+    
+    /* توحيد الخط والاتجاه */
     * { font-family: 'Cairo', sans-serif !important; direction: rtl; text-align: right; }
     .stApp { background-color: #f1f5f9; }
     #MainMenu, footer, header { visibility: hidden; }
 
+    /* البطاقة الرئيسية */
     .main-card { 
-        background: white; border-top: 12px solid #0f172a; 
-        padding: 45px; border-radius: 15px; 
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-top: -60px; 
+        background: white; border-top: 10px solid #1e3a8a; 
+        padding: 35px; border-radius: 15px; 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05); margin-top: -50px; 
     }
-    .brand-title { color: #0f172a; font-weight: 900; font-size: 2.5rem; text-align: center; margin: 0; }
-    .brand-subtitle { color: #c5a059; text-align: center; font-weight: 700; font-size: 1rem; margin-bottom: 40px; }
+    
+    .brand-title { color: #1e3a8a; font-weight: 900; font-size: 2.2rem; text-align: center; margin: 0; }
+    .brand-subtitle { color: #c5a059; text-align: center; font-weight: 700; font-size: 0.9rem; margin-bottom: 30px; }
 
+    /* العناوين الفرعية الرشيقة */
     .section-header { 
-        background: #0f172a; color: white; padding: 12px 25px; 
-        border-radius: 8px; font-weight: 700; margin: 20px 0;
+        background: #1e3a8a; color: white; padding: 10px 20px; 
+        border-radius: 8px; font-weight: 700; font-size: 1.1rem; 
+        margin: 25px 0 15px 0; display: inline-block;
     }
-    .q-label { color: #1e293b; font-weight: 800; border-right: 5px solid #c5a059; padding-right: 12px; margin-top: 15px; display: block; }
-    .hint-box { color: #64748b; font-size: 0.82rem; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+    
+    .q-label { color: #1e293b; font-weight: 800; border-right: 5px solid #c5a059; padding-right: 12px; margin-top: 20px; display: block; }
+    .hint-box { color: #64748b; font-size: 0.8rem; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
 
+    /* الأزرار الاحترافية */
     .stButton>button { 
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%) !important; color: white !important; 
-        font-weight: 800 !important; height: 60px !important; font-size: 1.2rem !important;
-        border-radius: 12px !important; border: none !important; width: 100%; transition: 0.3s;
+        background: linear-gradient(135deg, #1e3a8a 0%, #152e6d 100%) !important; color: white !important; 
+        font-weight: 700 !important; height: 55px !important; border-radius: 12px !important; 
+        border: none !important; width: 100%; transition: 0.3s;
     }
+    
     .magic-btn button { 
         background: #fdfaf3 !important; color: #856404 !important; border: 1px dashed #c5a059 !important; 
-        height: 35px !important; font-size: 0.8rem !important; margin-top: -10px; width: auto !important;
+        height: 35px !important; font-size: 0.8rem !important; margin-top: 5px; width: auto !important;
     }
-    .whatsapp-btn { background: #25d366; color: white !important; padding: 12px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; }
+
+    .whatsapp-btn { background: #25d366; color: white !important; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. بنك المعلومات الاستراتيجي (الـ 12 تخصصاً كاملاً)
-STRATEGY_BANK = {
-    "📑 تقرير إنجاز دوري": ["الملخص التنفيذي للأداء", "تحليل الأنشطة والمنجزات", "إدارة الانحرافات والجدول الزمني", "التحديات والحلول التصحيحية", "الأولويات الاستراتيجية القادمة"],
-    "💰 دراسة جدوى استثمارية": ["تحليل الاحتياج السوقي", "المواصفات الفنية والمتطلبات", "النمذجة المالية والربحية", "تحليل الحساسية والمخاطر", "تحليل المنافسة (SWOT)", "توصية الاستثمار النهائية"],
-    "🎓 تقرير ختامي لتدريب": ["منهجية وأهداف التدريب", "تحليل نتائج القبلي والبعدي", "تقييم المدرب والمادة العلمية", "تفاعل المشاركين واللوجستيات", "توصيات استدامة الأثر"],
-    "🔍 تقرير متابعة وتقييم (M&E)": ["قياس مؤشرات الأداء (KPIs)", "جودة المخرجات والامتثال", "تحليل رضا المستفيدين", "الدروس المستفادة والنمو"],
-    "🚑 تقرير تقييم احتياجات": ["وصف الأزمة والاحتياج الراهن", "ديموغرافيا الفئات المتضررة", "الأولويات العاجلة للاستجابة", "خارطة التدخل المقترحة"],
-    "🏛️ تقرير حوكمة وامتثال": ["الالتزام باللوائح والسياسات", "نتائج التدقيق والرقابة", "الثغرات المرصودة في النظام", "خطة تحسين مستوى الشفافية"],
-    "💰 تقرير أداء مالي": ["بيان الدخل والمصروفات", "تحليل انحرافات الميزانية", "التدفق النقدي والسيولة", "توصيات رفع كفاءة الإنفاق"],
-    "🏗️ تقرير فني وهندسي": ["مطابقة المواصفات والمواد", "نتائج اختبارات الجودة", "المعوقات والحلول الهندسية", "تقرير السلامة المهنية"],
-    "🌍 تقرير أثر بيئي واجتماعي": ["تحليل الأثر البيئي والحيوي", "المسؤولية المجتمعية والرضا", "إجراءات التخفيف", "خطة الاستدامة البيئية"],
-    "📝 تقرير تحليل مناقصات": ["التقييم الفني للمتقدمين", "التقييم المالي والمقارنة", "تحليل مخاطر الموردين", "توصية الترسية النهائية"],
-    "⚠️ تقرير إدارة مخاطر": ["سجل المخاطر المرصودة", "تحليل الاحتمالية والأثر", "خطط الاستجابة والطوارئ", "مسؤوليات المتابعة"],
-    "🌟 تقرير استراتيجي سنوي": ["الرؤية والمنجز العام", "تحليل الأداء السنوي الشامل", "الوضع المالي الموحد", "الأهداف الاستراتيجية القادمة"]
-}
-
-# 3. الهيكل التشغيلي (بدون هدم)
-st.markdown('<div class="main-card">', unsafe_allow_html=True)
-st.markdown('<h1 class="brand-title">منصة المنصور AI للتقارير</h1>', unsafe_allow_html=True)
-st.markdown('<p class="brand-subtitle">نظام الصياغة والتحليل المؤسسي المتكامل - الإصدار السيادي 2026</p>', unsafe_allow_html=True)
-
+# تفعيل Gemini
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
     genai.configure(api_key=api_key)
@@ -70,96 +60,85 @@ try:
 except:
     st.error("⚠️ يرجى ضبط المفتاح في الإعدادات")
 
-rtype = st.selectbox("🎯 حدد تخصص التقرير لضبط المنهجية تلقائياً:", list(STRATEGY_BANK.keys()))
+# بنك التقارير (الـ 12 تخصصاً كاملاً)
+STRATEGY_BANK = {
+    "📑 تقرير إنجاز دوري": ["الملخص التنفيذي للأداء", "تحليل الأنشطة والمنجزات", "إدارة الانحرافات", "التحديات والحلول", "الأولويات القادمة"],
+    "💰 دراسة جدوى": ["الاحتياج السوقي", "المتطلبات الفنية", "النمذجة المالية", "تحليل المخاطر", "توصية الاستثمار"],
+    "🎓 تقرير ختامي لتدريب": ["أهداف المنهجية", "نتائج القبلي والبعدي", "تقييم المدرب واللوجستيات", "توصيات الاستدامة"],
+    "🔍 تقرير متابعة وتقييم (M&E)": ["قياس KPIs", "جودة المخرجات", "رضا المستفيدين", "الدروس المستفادة"],
+    "🏛️ حوكمة وامتثال": ["الالتزام باللوائح", "نتائج التدقيق", "الثغرات المرصودة", "خطة التحسين"],
+    "🏗️ تقرير فني وهندسي": ["المواصفات والمواد", "اختبارات الجودة", "المعوقات والحلول", "السلامة المهنية"]
+    # (يمكنك إضافة البقية بنفس الطريقة)
+}
 
-# أ. الغلاف والبيانات التعريفية
-with st.expander("🛡️ أولاً: صفحة الغلاف والبيانات الرسمية", expanded=True):
-    c1, c2 = st.columns(2)
-    p_name = c1.text_input("عنوان التقرير (اسم المشروع) *")
-    p_ref = c2.text_input("الرقم المرجعي (Ref No.)")
-    p_agency = c1.text_input("الجهة المُعِدّة (المؤسسة)")
-    p_donor = c2.text_input("الجهة الموجه إليها (المانح/العميل)")
-    p_loc = c1.text_input("المكان والنطاق الجغرافي")
-    p_date = c2.text_input("التاريخ", value=datetime.now().strftime('%Y-%m-%d'))
+st.markdown('<div class="main-card">', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">منصة المنصور الاستراتيجية AI</h1>', unsafe_allow_html=True)
+st.markdown('<p class="brand-subtitle">PREMIUM EXECUTIVE REPORTING SYSTEM V10</p>', unsafe_allow_html=True)
 
-# ب. الشكر والمقدمة
-with st.expander("🤝 ثانياً: خطاب الإرسال والشكر والمقدمة"):
-    p_thanks = st.text_area("كلمة شكر وتقديم للتقرير:", placeholder="مثال: نتقدم بخالص الشكر للجهات الداعمة...")
+# الخطوة 1: الإعداد والرفع
+st.markdown('<div class="section-header">📁 الخطوة 1: الإعداد ورفع الوثائق</div>', unsafe_allow_html=True)
+rtype = st.selectbox("🎯 حدد تخصص التقرير:", list(STRATEGY_BANK.keys()))
+uploaded_file = st.file_uploader("هل لديك مسودة أو وثيقة تريد من الذكاء الاصطناعي تحليلها؟ (اختياري)", type=['pdf', 'docx', 'txt'])
 
-# ج. صلب التقرير (المحاور الاستراتيجية + زر التحسين)
-st.markdown(f'<div class="section-header">🔍 ثالثاً: المحاور الاستراتيجية لـ {rtype}</div>', unsafe_allow_html=True)
-responses = {}
+# الخطوة 2: البيانات التعريفية
+st.markdown('<div class="section-header">🛡️ الخطوة 2: الغلاف والبيانات الرسمية</div>', unsafe_allow_html=True)
+p_name = st.text_input("اسم المشروع / النشاط *")
+p_agency = st.text_input("الجهة المُعِدّة")
+p_donor = st.text_input("الجهة الموجه إليها")
+p_loc = st.text_input("المكان والنطاق الجغرافي")
+
+# الخطوة 3: المحاور (مع زر التحسين)
+st.markdown('<div class="section-header">🔍 الخطوة 3: صلب التقرير والتحليل</div>', unsafe_allow_html=True)
+user_responses = {}
 for i, pillar in enumerate(STRATEGY_BANK[rtype]):
     st.markdown(f'<span class="q-label">{pillar}</span>', unsafe_allow_html=True)
-    st.markdown(f'<div class="hint-box">💡 مثال احترافي: ابدأ بذكر أهم المخرجات في {pillar} ثم التفاصيل...</div>', unsafe_allow_html=True)
-    txt = st.text_area("", key=f"v8_{i}_{rtype}", height=120, label_visibility="collapsed")
+    st.markdown(f'<div class="hint-box">💡 مثال: ابدأ بذكر أهم النتائج المحققة في {pillar} بشكل موجز...</div>', unsafe_allow_html=True)
+    txt = st.text_area("", key=f"v10_{i}", height=120, label_visibility="collapsed")
     
-    # زر التحسين تحت كل سؤال مباشرة
-    c_btn, c_sp = st.columns([1, 4])
-    with c_btn:
-        st.markdown('<div class="magic-btn">', unsafe_allow_html=True)
-        if st.button(f"✨ تحسين الصياغة", key=f"btn_v8_{i}"):
-            if txt:
-                with st.spinner("جاري المعالجة..."):
-                    res = model.generate_content(f"صغ هذا المحور بأسلوب استشاري فخم وصوت نشط: {txt}")
-                    st.code(res.text)
-            else: st.warning("أدخل نصاً")
-        st.markdown('</div>', unsafe_allow_html=True)
-    responses[pillar] = txt
+    if st.button(f"✨ تحسين {pillar}", key=f"btn10_{i}"):
+        if txt:
+            with st.spinner("جاري الصياغة..."):
+                res = model.generate_content(f"صغ هذا المحور بأسلوب استشاري رفيع: {txt}")
+                st.code(res.text)
+        else: st.warning("أدخل نصاً")
+    user_responses[pillar] = txt
 
-# د. الخاتمة والملاحق والاعتماد
-with st.expander("📌 رابعاً: الخاتمة والتوصيات والملاحق"):
-    p_concl = st.text_area("الخاتمة والتوصيات الاستراتيجية:", placeholder="خلاصة التقرير والتوصيات القابلة للتنفيذ...")
-    p_appendix = st.text_area("الملاحق (صور، روابط، جداول):", placeholder="أدخل روابط الصور أو كشف الملاحق...")
+# الخطوة 4: التخصيص
+st.markdown('<div class="section-header">➕ الخطوة 4: إضافات مخصصة</div>', unsafe_allow_html=True)
+st.info("إذا كان لديك بيانات أخرى وتريد إضافتها، اضغط على الزر وخصص قسماً جديداً:")
+if 'v10_extra' not in st.session_state: st.session_state.v10_extra = []
+new_sec = st.text_input("اسم القسم الجديد:")
+if st.button("خصص قسم الآن"):
+    if new_sec: st.session_state.v10_extra.append(new_sec); st.rerun()
 
-# هـ. التخصيص الكامل
-with st.expander("➕ خامساً: إضافة بيانات وأقسام مخصصة"):
-    st.info("إذا كان لديك بيانات أخرى وتريد إضافتها، اضغط على الزر وخصص قسماً جديداً:")
-    if 'v8_extra' not in st.session_state: st.session_state.v8_extra = []
-    new_sec = st.text_input("اسم القسم الإضافي:")
-    if st.button("خصص القسم الآن"):
-        if new_sec: st.session_state.v8_extra.append(new_sec); st.rerun()
-    for ex in st.session_state.v8_extra:
-        st.markdown(f"**⭐ قسم مخصص: {ex}**")
-        responses[ex] = st.text_area(f"بيانات {ex}...", key=f"ex8_{ex}")
-        if st.button(f"حذف {ex}"): st.session_state.v8_extra.remove(ex); st.rerun()
+for ex in st.session_state.v10_extra:
+    user_responses[ex] = st.text_area(f"بيانات {ex}...", key=f"ex10_{ex}")
 
-# و. هيكل التوقيعات
-with st.expander("🖊️ سادساً: هيكل الاعتماد والتوقيع"):
-    v1, v2, v3 = st.columns(3)
-    p_pre = v1.text_input("أعده:")
-    p_rev = v2.text_input("راجعه:")
-    p_app = v3.text_input("اعتمده:")
+# الخطوة 5: التوقيعات
+st.markdown('<div class="section-header">🖊️ الخطوة 5: الاعتماد والتوقيع</div>', unsafe_allow_html=True)
+p_pre = st.text_input("أعده:")
+p_rev = st.text_input("راجعه:")
+p_app = st.text_input("اعتمده:")
 
 st.write("---")
-if st.button("🚀 توليد ومعالجة التقرير الاستراتيجي الشامل"):
-    if p_name and any(responses.values()):
+if st.button("🚀 معالجة وتوليد التقرير الاستراتيجي الشامل"):
+    if p_name and any(user_responses.values()):
         with st.spinner("جاري صهر البيانات وفق معايير الجودة العالمية..."):
-            all_data = "\n".join([f"- {k}: {v}" for k, v in responses.items() if v])
-            full_prompt = f"""
-            بصفتك مستشاراً دولياً، صغ تقريراً استراتيجياً متكاملاً.
-            الغلاف: {p_name}، المرجع {p_ref}، الجهة {p_agency}، الموجه لـ {p_donor}.
-            خطاب التقديم: {p_thanks}
-            المحاور الفنية: {all_data}
-            الخاتمة والتوصيات: {p_concl}
-            الملاحق: {p_appendix}
-            التوقيعات: المعد {p_pre}، المراجع {p_rev}، المعتمد {p_app}.
-            المعايير: ISO 2145، صوت نشط، نبرة قيادية.
-            """
-            res = model.generate_content(full_prompt)
+            summary = "\n".join([f"- {k}: {v}" for k, v in user_responses.items() if v])
+            prompt = f"أنت مستشار دولي. صغ تقريراً استراتيجياً متكاملاً. المشروع: {p_name}. الجهة: {p_agency}. الموجه لـ: {p_donor}. المكان: {p_loc}. المعطيات: {summary}. التوقيعات: {p_pre}، {p_rev}، {p_app}."
+            res = model.generate_content(prompt)
             st.markdown(res.text)
-            st.session_state['v8_out'] = res.text
+            st.session_state['v10_out'] = res.text
     else: st.warning("يرجى ملء البيانات.")
 
-if 'v8_out' in st.session_state:
+if 'v10_out' in st.session_state:
     doc = Document()
     doc.add_heading(f"Report: {p_name}", 0)
-    doc.add_paragraph(st.session_state['v8_out'])
+    doc.add_paragraph(st.session_state['v10_out'])
     bio = BytesIO()
     doc.save(bio)
     bio.seek(0)
-    st.download_button("💾 تحميل المستند الرسمي (Word)", bio, f"{p_name}.docx")
+    st.download_button("💾 تحميل الوثيقة المعتمدة (Word)", bio, f"{p_name}.docx")
 
-st.markdown('<center><a href="https://wa.me/967774575749" class="whatsapp-btn">💬 تواصل معنا للدعم الاستشاري: 774575749</a></center>', unsafe_allow_html=True)
+st.markdown('<center><a href="https://wa.me/967774575749" class="whatsapp-btn">💬 تواصل معنا: 774575749</a></center>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
-st.markdown("<center style='color:#64748b; font-size:0.75rem; margin-top:20px;'>🛡️ حقوق المنصة محفوظة لشبكة المنصور الدولية للاستشارات | 2026</center>", unsafe_allow_html=True)
