@@ -1,118 +1,110 @@
 import streamlit as st
 import google.generativeai as genai
 import os
-from io import BytesIO
+from datetime import datetime
 from docx import Document
+from io import BytesIO
 
-# 1. إعدادات الصفحة والخط (Cairo) والتصميم الرسمي
-st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide")
+# 1. التنسيق البصري المؤسسي (فخامة رسمية - كحلي وذهبي)
+st.set_page_config(page_title="منصة المنصور الاستراتيجية V30", layout="centered")
 
 st.markdown("""
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-    * {font-family: 'Cairo', sans-serif; direction: rtl; text-align: right;}
-    .stApp {background-color: #f4f7f9;}
+    /* إخفاء أدوات المنصة للخصوصية */
+    #MainMenu, footer, header {visibility: hidden;}
     
-    /* الهيدر العلوي */
-    .main-header {
-        background: linear-gradient(90deg, #1e3a8a 0%, #152e6d 100%);
-        color: #d4af37;
-        padding: 2rem;
-        border-radius: 15px;
-        text-align: center;
-        border-bottom: 5px solid #d4af37;
-        margin-bottom: 2rem;
+    html, body, [class*="st-"] { font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; }
+    .stApp { background-color: #f8fafc; }
+    
+    .main-box {
+        background: white; border-top: 10px solid #1e3a8a; 
+        padding: 40px; border-radius: 20px; 
+        box-shadow: 0 20px 60px rgba(0,0,0,0.05);
     }
-    
-    /* الأزرار */
+    .brand-title { color: #1e3a8a; font-weight: 900; font-size: 2.3rem; text-align: center; margin:0; }
+    .methodology-tag { 
+        background: #1e3a8a; color: #fbbf24; padding: 6px 20px; border-radius: 25px; 
+        font-size: 0.85rem; display: table; margin: 10px auto 30px auto; font-weight: bold;
+    }
+    .section-title { 
+        color: #1e3a8a; font-size: 1.1rem; font-weight: 700; margin-top: 25px; 
+        border-right: 5px solid #fbbf24; padding-right: 12px; background: #f8fafc; padding: 10px;
+    }
     .stButton>button {
-        width: 100%;
-        background: #d4af37 !important;
-        color: #1e3a8a !important;
-        font-weight: bold !important;
-        border: none !important;
-        transition: 0.3s;
+        background: linear-gradient(90deg, #1e3a8a, #d4af37) !important;
+        color: white !important; font-weight: 700 !important; height: 55px !important; border-radius: 12px !important;
     }
-    .stButton>button:hover {
-        background: #b8962e !important;
-        transform: translateY(-2px);
-    }
-    
-    /* صناديق المدخلات */
-    .stTextArea textarea {border: 1px solid #1e3a8a !important;}
     </style>
-    
-    <div class="main-header">
-        <h1>🚀 منصة المنصور الاستراتيجية للذكاء الاصطناعي</h1>
-        <p style="color: white;">الجيل القادم في صياغة التقارير وخطط العمل الاحترافية</p>
-    </div>
 """, unsafe_allow_html=True)
 
-# 2. ربط الذكاء الاصطناعي
-api_key = st.secrets["GEMINI_API_KEY"]
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-1.5-flash")
+# 2. ربط المحرك (Gemini)
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+except Exception as e:
+    st.error("⚠️ يرجى التأكد من إضافة GEMINI_API_KEY في إعدادات Secrets")
 
-# 3. محرك التقارير الاستشارية
-tabs = st.tabs(["📝 صياغة تقرير احترافي", "🔍 تحسين وتدقيق نص", "💡 أمثلة ونماذج"])
+# 3. محتوى المنهجية المطور (من دليلك الاستراتيجي)
+st.markdown('<div class="main-box">', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">المنصور AI للتقارير الاستراتيجية</h1>', unsafe_allow_html=True)
+st.markdown('<div class="methodology-tag">إصدار 2026 | معايير IBCS & ISO 2145</div>', unsafe_allow_html=True)
 
-with tabs[0]:
-    col1, col2 = st.columns([1, 2])
-    with col1:
-        st.subheader("إعدادات التقرير")
-        report_type = st.selectbox("نوع التقرير", [
-            "تقرير إنجاز دوري", 
-            "خطة عمل استراتيجية", 
-            "تقرير تقييم أداء", 
-            "مقترح مشروع (Proposal)",
-            "دراسة حالة استشارية"
-        ])
-        tone = st.select_slider("لهجة الكتابة", ["رسمي بسيط", "احترافي استشاري", "قيادي رفيع"])
-        
-    with col2:
-        st.subheader("بيانات التقرير")
-        context = st.text_area("أدخل النقاط الأساسية أو المسودة (حتى لو كانت غير مرتبة)", height=200, 
-                              placeholder="مثال: تم تدريب 50 شخص، واجهنا مشكلة في القاعة، النتيجة كانت ممتازة...")
-        
-        if st.button("توليد التقرير النهائي"):
-            if context:
-                with st.spinner("جاري الصياغة بأسلوب استشاري رفيع..."):
-                    prompt = f"بصفتك خبير تطوير مؤسسي، صغ لي {report_type} بلهجة {tone}. استخدم لغة عربية فصحى قوية، رتب الأفكار في نقاط، وأضف توصيات استراتيجية بناءً على هذا السياق: {context}. اجعل الخطاب موجه للإدارة العليا."
-                    response = model.generate_content(prompt)
-                    st.session_state['last_report'] = response.text
-                    st.markdown("### النتيجة النهائية:")
-                    st.info(response.text)
-            else:
-                st.error("الرجاء إدخال بيانات التقرير أولاً")
+tab1, tab2, tab3 = st.tabs(["📝 توليد تقرير", "🔬 دراسة جدوى", "✨ تحسين لغوي"])
 
-with tabs[1]:
-    st.subheader("محرك تحسين النصوص")
-    raw_text = st.text_area("ألصق النص الذي تريد تحسينه هنا...", height=150)
-    if st.button("تحسين النص لغوياً واستراتيجياً"):
-        if raw_text:
-            with st.spinner("جاري معالجة النص..."):
-                prompt = f"قم بإعادة صياغة هذا النص ليكون أكثر احترافية وقوة، صحح الأخطاء الإملائية، واستخدم مصطلحات إدارية حديثة: {raw_text}"
+with tab1:
+    st.markdown('<p class="section-title">إعداد التقرير الدوري والمؤسسي</p>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    rtype = c1.selectbox("نوع التقرير", ["تقرير إنجاز", "تقرير تحليلي", "تقرير مقارن"])
+    level = c2.select_slider("مستوى الصياغة", ["رسمي", "احترافي", "قيادي رفيع"])
+    
+    p_name = st.text_input("اسم المشروع / الجهة")
+    raw_data = st.text_area("أدخل البيانات الخام (حتى لو كانت غير مرتبة)", height=150)
+    
+    if st.button("🚀 صياغة التقرير الاستراتيجي"):
+        if raw_data and p_name:
+            with st.spinner("جاري تطبيق معايير الكتابة التقنية (Active Voice)..."):
+                prompt = f"بصفتك خبير استشاري، صغ لي {rtype} بمستوى {level} للمشروع {p_name}. التزم بنظام ISO 2145، استخدم الصوت النشط، عبارات إيجابية، وجمل قصيرة. أضف توصيات عملية. البيانات: {raw_data}"
                 response = model.generate_content(prompt)
-                st.success("النص بعد التحسين:")
-                st.write(response.text)
+                st.session_state['report_text'] = response.text
+                st.markdown("---")
+                st.markdown(response.text)
+        else: st.warning("أدخل البيانات الأساسية أولاً.")
 
-with tabs[2]:
-    st.info("💡 **أمثلة لما يمكنك القيام به:**")
-    st.write("""
-    * **تقرير تدريب:** اذكر فقط (اسم الدورة، عدد المتدربين، انطباعك) وسيقوم النظام ببناء مقدمة، محاور، نتائج، وتوصيات.
-    * **خطة عمل:** اذكر (الهدف، المدة، الميزانية) وسيقوم النظام بتوزيع المهام وتحليل المخاطر.
-    * **تحسين إيميل:** ألصق إيميل عادي وسيحوله إلى خطاب رسمي موجه لمدير شركة أو منظمة.
-    """)
+with tab2:
+    st.markdown('<p class="section-title">حسابات الجدوى الفنية والقدرة</p>', unsafe_allow_html=True)
+    col_a, col_b = st.columns(2)
+    rate = col_a.number_input("معدل الإنتاج (وحدة/ساعة)", value=10.0)
+    hours = col_b.number_input("ساعات العمل يومياً", value=8)
+    days = st.number_input("أيام العمل سنوياً", value=300)
+    
+    if st.button("📊 تحليل القدرة والجدوى"):
+        capacity = rate * hours * days
+        st.info(f"القدرة المركبة المحسوبة: {capacity:,} وحدة/سنة")
+        with st.spinner("جاري توليد تحليل الجدوى..."):
+            f_prompt = f"قدم تحليل جدوى فنية لمشروع قدرته الإنتاجية {capacity} سنوياً، مع تحليل حساسية سريع للمخاطر."
+            res = model.generate_content(f_prompt)
+            st.write(res.text)
 
-# 4. وظيفة تحميل ملف Word
-def to_word(text):
+with tab3:
+    st.markdown('<p class="section-title">محرك التدقيق (Active Voice)</p>', unsafe_allow_html=True)
+    text_to_fix = st.text_area("ألصق النص الضعيف لتحويله لأسلوب قيادي موجز:")
+    if st.button("✨ تحسين النص"):
+        if text_to_fix:
+            fix_prompt = f"أعد صياغة النص بأسلوب Cypress Media (إيجاز، صوت نشط، جمل مثبتة): {text_to_fix}"
+            res = model.generate_content(fix_prompt)
+            st.success(res.text)
+
+# 4. التصدير لـ Word
+if 'report_text' in st.session_state:
     doc = Document()
-    doc.add_heading("تقرير منصة المنصور الاستراتيجية", 0)
-    p = doc.add_paragraph(text)
+    doc.add_heading(f"تقرير منصة المنصور: {p_name}", 0)
+    doc.add_paragraph(st.session_state['report_text'])
     bio = BytesIO()
     doc.save(bio)
     bio.seek(0)
-    return bio
+    st.download_button("💾 تحميل المستند (Word)", bio, f"Mansour_Report.docx")
 
-if 'last_report' in st.session_state:
-    st.download_button("⬇️ تحميل التقرير كملف Word", data=to_word(st.session_state['last_report']), file_name="Almansour_Report.docx")
+st.markdown('</div>', unsafe_allow_html=True)
+st.markdown("<center style='color:#94a3b8; font-size:0.7rem; margin-top:20px;'>🛡️ شبكة المنصور الدولية للاستشارات | 2026</center>", unsafe_allow_html=True)
