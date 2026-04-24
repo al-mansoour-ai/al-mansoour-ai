@@ -1,101 +1,118 @@
 import streamlit as st
 import google.generativeai as genai
-import openai
 import os
 from io import BytesIO
 from docx import Document
 
-# ===== إعداد الصفحة =====
-st.set_page_config(page_title="المنصور AI", layout="centered")
+# 1. إعدادات الصفحة والخط (Cairo) والتصميم الرسمي
+st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide")
 
-# ===== التصميم (الهوية البصرية للمنصور) =====
 st.markdown("""
-<style>
-.stApp {direction: rtl; background:#f8fafc;}
-.title {text-align:center; font-size:35px; font-weight:bold; color:#1e3a8a; border-bottom: 2px solid #d4af37; padding-bottom:10px;}
-button {
-    background: linear-gradient(90deg,#1e3a8a,#d4af37)!important;
-    color:white!important;
-    font-weight:bold!important;
-    border-radius:10px!important;
-}
-</style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+    * {font-family: 'Cairo', sans-serif; direction: rtl; text-align: right;}
+    .stApp {background-color: #f4f7f9;}
+    
+    /* الهيدر العلوي */
+    .main-header {
+        background: linear-gradient(90deg, #1e3a8a 0%, #152e6d 100%);
+        color: #d4af37;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        border-bottom: 5px solid #d4af37;
+        margin-bottom: 2rem;
+    }
+    
+    /* الأزرار */
+    .stButton>button {
+        width: 100%;
+        background: #d4af37 !important;
+        color: #1e3a8a !important;
+        font-weight: bold !important;
+        border: none !important;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background: #b8962e !important;
+        transform: translateY(-2px);
+    }
+    
+    /* صناديق المدخلات */
+    .stTextArea textarea {border: 1px solid #1e3a8a !important;}
+    </style>
+    
+    <div class="main-header">
+        <h1>🚀 منصة المنصور الاستراتيجية للذكاء الاصطناعي</h1>
+        <p style="color: white;">الجيل القادم في صياغة التقارير وخطط العمل الاحترافية</p>
+    </div>
 """, unsafe_allow_html=True)
 
-# ===== جلب المفاتيح من الأسرار =====
-gemini_key = os.getenv("GEMINI_API_KEY")
-openai_key = os.getenv("OPENAI_API_KEY")
+# 2. ربط الذكاء الاصطناعي
+api_key = st.secrets["GEMINI_API_KEY"]
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-if gemini_key:
-    genai.configure(api_key=gemini_key)
-if openai_key:
-    client_openai = openai.OpenAI(api_key=openai_key)
+# 3. محرك التقارير الاستشارية
+tabs = st.tabs(["📝 صياغة تقرير احترافي", "🔍 تحسين وتدقيق نص", "💡 أمثلة ونماذج"])
 
-# ===== أنواع التقارير =====
-REPORT_TYPES = {
-    "📊 تقرير مشروع": ["ما الذي تم إنجازه؟","التحديات التي واجهتكم؟","نسبة الإنجاز الحالية؟","التوصيات المستقبلية؟"],
-    "🎓 تقرير تدريب": ["ما هو هدف البرنامج التدريبي؟","عدد المشاركين؟","مستوى التفاعل؟","أهم المخرجات والنتائج؟"],
-    "💰 تقرير مالي": ["ملخص المصاريف؟","مقارنة بالميزانية؟","الفروقات المالية؟","توصيات الاستدامة؟"]
-}
+with tabs[0]:
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.subheader("إعدادات التقرير")
+        report_type = st.selectbox("نوع التقرير", [
+            "تقرير إنجاز دوري", 
+            "خطة عمل استراتيجية", 
+            "تقرير تقييم أداء", 
+            "مقترح مشروع (Proposal)",
+            "دراسة حالة استشارية"
+        ])
+        tone = st.select_slider("لهجة الكتابة", ["رسمي بسيط", "احترافي استشاري", "قيادي رفيع"])
+        
+    with col2:
+        st.subheader("بيانات التقرير")
+        context = st.text_area("أدخل النقاط الأساسية أو المسودة (حتى لو كانت غير مرتبة)", height=200, 
+                              placeholder="مثال: تم تدريب 50 شخص، واجهنا مشكلة في القاعة، النتيجة كانت ممتازة...")
+        
+        if st.button("توليد التقرير النهائي"):
+            if context:
+                with st.spinner("جاري الصياغة بأسلوب استشاري رفيع..."):
+                    prompt = f"بصفتك خبير تطوير مؤسسي، صغ لي {report_type} بلهجة {tone}. استخدم لغة عربية فصحى قوية، رتب الأفكار في نقاط، وأضف توصيات استراتيجية بناءً على هذا السياق: {context}. اجعل الخطاب موجه للإدارة العليا."
+                    response = model.generate_content(prompt)
+                    st.session_state['last_report'] = response.text
+                    st.markdown("### النتيجة النهائية:")
+                    st.info(response.text)
+            else:
+                st.error("الرجاء إدخال بيانات التقرير أولاً")
 
-st.markdown("<div class='title'>🚀 منصة المنصور AI الاستراتيجية</div>", unsafe_allow_html=True)
-st.write("---")
+with tabs[1]:
+    st.subheader("محرك تحسين النصوص")
+    raw_text = st.text_area("ألصق النص الذي تريد تحسينه هنا...", height=150)
+    if st.button("تحسين النص لغوياً واستراتيجياً"):
+        if raw_text:
+            with st.spinner("جاري معالجة النص..."):
+                prompt = f"قم بإعادة صياغة هذا النص ليكون أكثر احترافية وقوة، صحح الأخطاء الإملائية، واستخدم مصطلحات إدارية حديثة: {raw_text}"
+                response = model.generate_content(prompt)
+                st.success("النص بعد التحسين:")
+                st.write(response.text)
 
-# ===== واجهة الاختيارات =====
-col1, col2 = st.columns(2)
-with col1:
-    plan = st.radio("إصدار المنصة", ["مجاني (Gemini)", "بريميوم (OpenAI)"])
-with col2:
-    report_type = st.selectbox("نوع التقرير المطلوبة", list(REPORT_TYPES.keys()))
+with tabs[2]:
+    st.info("💡 **أمثلة لما يمكنك القيام به:**")
+    st.write("""
+    * **تقرير تدريب:** اذكر فقط (اسم الدورة، عدد المتدربين، انطباعك) وسيقوم النظام ببناء مقدمة، محاور، نتائج، وتوصيات.
+    * **خطة عمل:** اذكر (الهدف، المدة، الميزانية) وسيقوم النظام بتوزيع المهام وتحليل المخاطر.
+    * **تحسين إيميل:** ألصق إيميل عادي وسيحوله إلى خطاب رسمي موجه لمدير شركة أو منظمة.
+    """)
 
-project_name = st.text_input("اسم المشروع / المؤسسة")
-
-# جمع الإجابات
-answers = []
-for i, q in enumerate(REPORT_TYPES[report_type]):
-    answers.append(st.text_area(q, key=f"q_{i}"))
-
-# ===== دالة التوليد الذكي =====
-def generate_report():
-    prompt = f"اكتب تقرير احترافي رفيع المستوى لـ {project_name} نوعه {report_type}:\n"
-    for q, a in zip(REPORT_TYPES[report_type], answers):
-        prompt += f"{q}: {a}\n"
-    prompt += "\nالمطلوب: صياغة رسمية، مقدمة، تحليل دقيق، توصيات استراتيجية."
-
-    if "بريميوم" in plan and openai_key:
-        response = client_openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
-    else:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        return model.generate_content(prompt).text
-
-# ===== معالجة ملف Word =====
-def create_word(text):
+# 4. وظيفة تحميل ملف Word
+def to_word(text):
     doc = Document()
-    doc.add_heading(f"تقرير: {project_name}", 0)
-    doc.add_paragraph(text)
-    buffer = BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    return buffer
+    doc.add_heading("تقرير منصة المنصور الاستراتيجية", 0)
+    p = doc.add_paragraph(text)
+    bio = BytesIO()
+    doc.save(bio)
+    bio.seek(0)
+    return bio
 
-# ===== زر التشغيل =====
-if st.button("🚀 توليد وتحميل التقرير الآن"):
-    if not project_name or not all(answers):
-        st.warning("يرجى إكمال جميع الحقول لضمان جودة التقرير.")
-    else:
-        with st.spinner("جاري صياغة التقرير بذكاء المنصور..."):
-            final_report = generate_report()
-            st.success("تم توليد التقرير بنجاح!")
-            st.markdown("### نص التقرير المقترح:")
-            st.info(final_report)
-            
-            st.download_button(
-                label="📄 تحميل التقرير كملف Word",
-                data=create_word(final_report),
-                file_name=f"AlMansour_Report_{project_name}.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            )
+if 'last_report' in st.session_state:
+    st.download_button("⬇️ تحميل التقرير كملف Word", data=to_word(st.session_state['last_report']), file_name="Almansour_Report.docx")
