@@ -1,129 +1,99 @@
-import streamlit as st
-import google.generativeai as genai
-import os
+prompt = f"""
+أنت مستشار دولي خبير يعمل مع منظمات مثل الأمم المتحدة، البنك الدولي، والاتحاد الأوروبي.
+متخصص في إعداد التقارير الاستراتيجية وفق المعايير العالمية (PMBOK, ISO, Kirkpatrick, IFRS).
 
-# ===== إعداد الصفحة =====
-st.set_page_config(page_title="المنصور AI", layout="centered")
+==============================
+📌 معلومات أساسية:
+اسم المشروع: {p_name}
+نوع التقرير: {rtype}
+الجهة المنفذة: {p_agency}
+الجهة المانحة: {p_donor}
+الموقع والتاريخ: {p_loc}
+==============================
 
-# ===== تصميم =====
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+📊 مدخلات التقرير:
+{content}
 
-html, body {
-    direction: rtl;
-    background: #f8fafc;
-}
+==============================
+🎯 المطلوب:
+إعداد تقرير احترافي عالي المستوى مناسب للتقديم الرسمي للجهات المانحة والمنظمات الدولية.
 
-* { font-family: 'Cairo', sans-serif !important; }
+==============================
+🧠 التعليمات الاحترافية:
 
-.title {
-    text-align:center;
-    font-size:30px;
-    font-weight:900;
-    color:#1e3a8a;
-}
+1. استخدم لغة عربية رسمية قوية جداً (Formal Professional Arabic)
+2. اكتب بأسلوب تقارير الأمم المتحدة (UN Style)
+3. اعتمد على التحليل العميق وليس الوصف السطحي
+4. اربط بين الأقسام بشكل منطقي وسلس
+5. تجنب التكرار تماماً
+6. ادعم التحليل بمؤشرات رقمية تقديرية واقعية عند الحاجة
+7. اجعل التوصيات قابلة للتنفيذ ومرتبطة بالنتائج
+8. حافظ على نبرة احترافية وموضوعية
 
-.card {
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:15px;
-    border-right:5px solid #d4af37;
-}
+==============================
+📑 هيكل التقرير (إلزامي):
 
-.hint {
-    font-size:13px;
-    color:#64748b;
-}
+1. الملخص التنفيذي (Executive Summary)
+   - ملخص شامل عالي المستوى
+   - أبرز النتائج
+   - أهم التوصيات
 
-button {
-    background: linear-gradient(90deg,#1e3a8a,#d4af37)!important;
-    color:white!important;
-    height:50px!important;
-    border-radius:10px!important;
-}
-</style>
-""", unsafe_allow_html=True)
+2. المقدمة
+   - خلفية المشروع
+   - الهدف العام
+   - أهمية التقرير
 
-# ===== API =====
-api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
-    st.error("⚠️ ضع مفتاح API")
-    st.stop()
+3. منهجية العمل
+   - آلية التنفيذ
+   - أدوات جمع البيانات
+   - الإطار المنهجي المستخدم
 
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-1.5-flash")
+4. عرض وتحليل النتائج
+   - تحليل كل محور بشكل احترافي
+   - تفسير النتائج وليس فقط عرضها
+   - ربط النتائج بالأهداف
 
-# ===== أنواع التقارير =====
-REPORTS = {
-    "📊 مشروع": [
-        ("الهدف العام", "مثال: تحسين الوصول للخدمات"),
-        ("أهم الأنشطة", "مثال: تنفيذ ورش تدريب"),
-        ("النتائج", "مثال: زيادة الكفاءة بنسبة 30%"),
-        ("التحديات", "مثال: تأخر الإمدادات"),
-        ("الحلول", "مثال: التعاقد مع مورد بديل")
-    ],
-    "🎓 تدريب": [
-        ("هدف التدريب", "تطوير المهارات"),
-        ("الفئة المستهدفة", "موظفين / طلاب"),
-        ("مستوى التفاعل", "مرتفع / متوسط"),
-        ("نتائج التعلم", "تحسن واضح"),
-        ("الأثر", "تطبيق فعلي للمهارات")
-    ]
-}
+5. التحديات والمخاطر
+   - تحليل جذور التحديات
+   - تقييم تأثيرها
+   - كيفية التعامل معها
 
-# ===== واجهة =====
-st.markdown("<div class='title'>🚀 المنصور AI</div>", unsafe_allow_html=True)
+6. الدروس المستفادة
+   - استنتاجات عملية
+   - خبرات قابلة للتكرار
 
-rtype = st.selectbox("نوع التقرير", list(REPORTS.keys()))
-project = st.text_input("اسم المشروع")
+7. التوصيات الاستراتيجية
+   - توصيات واضحة ومحددة
+   - قابلة للتنفيذ
+   - مرتبطة مباشرة بالنتائج
 
-answers = {}
+8. الخاتمة
+   - تلخيص نهائي
+   - نظرة مستقبلية
 
-# ===== الأسئلة =====
-for i, (q, hint) in enumerate(REPORTS[rtype]):
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown(f"**{q}**")
-    st.markdown(f"<div class='hint'>💡 {hint}</div>", unsafe_allow_html=True)
-    answers[q] = st.text_area("", key=i)
-    st.markdown("</div>", unsafe_allow_html=True)
+==============================
+📌 قواعد التنسيق:
 
-# ===== توليد (بدون إظهار البرومبت) =====
-def generate():
-    data = "\n".join([f"{k}: {v}" for k,v in answers.items() if v])
+- استخدم عناوين مرقمة (1.0 / 1.1 / 1.2)
+- فقرات قصيرة واضحة
+- استخدم نقاط Bullet عند الحاجة
+- اجعل النص منظم وسهل القراءة
+- لا تستخدم لغة عامية إطلاقاً
 
-    text = f"""
-    تقرير رسمي احترافي:
+==============================
+⚠️ تعليمات إضافية مهمة:
 
-    المشروع: {project}
-    النوع: {rtype}
+- إذا كانت بعض البيانات ناقصة، قم بتقدير منطقي احترافي دون ذكر أنها تقديرية
+- لا تذكر أنك نموذج ذكاء اصطناعي
+- لا تشرح التعليمات
+- اكتب التقرير مباشرة بصيغة نهائية جاهزة للتسليم
 
-    {data}
+==============================
+🖊️ التوقيعات (أدرجها في نهاية التقرير بشكل رسمي):
 
-    اكتب التقرير بأسلوب رسمي احترافي مع:
-    مقدمة - تحليل - نتائج - توصيات
-    """
+إعداد: {p_pre}
+مراجعة: {p_rev}
+اعتماد: {p_app}
 
-    return model.generate_content(text).text
-
-# ===== زر =====
-if st.button("🚀 إنشاء التقرير"):
-    if not project:
-        st.warning("أدخل اسم المشروع")
-    else:
-        with st.spinner("جاري إعداد التقرير..."):
-            result = generate()
-
-        st.success("تم إنشاء التقرير")
-
-        st.markdown(f"""
-        <div style="
-        background:white;
-        padding:25px;
-        border-radius:10px;
-        line-height:2;
-        border-right:8px solid #d4af37;">
-        {result}
-        </div>
-        """, unsafe_allow_html=True)
+==============================
+"""
