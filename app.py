@@ -1,127 +1,129 @@
 import streamlit as st
 import google.generativeai as genai
 import os
-from io import BytesIO
-from docx import Document
-from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
 
-# ===== إعداد =====
-st.set_page_config(page_title="المنصور AI SaaS", layout="centered")
+# ===== إعداد الصفحة =====
+st.set_page_config(page_title="المنصور AI", layout="centered")
+
+# ===== تصميم =====
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+html, body {
+    direction: rtl;
+    background: #f8fafc;
+}
+
+* { font-family: 'Cairo', sans-serif !important; }
+
+.title {
+    text-align:center;
+    font-size:30px;
+    font-weight:900;
+    color:#1e3a8a;
+}
+
+.card {
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:15px;
+    border-right:5px solid #d4af37;
+}
+
+.hint {
+    font-size:13px;
+    color:#64748b;
+}
+
+button {
+    background: linear-gradient(90deg,#1e3a8a,#d4af37)!important;
+    color:white!important;
+    height:50px!important;
+    border-radius:10px!important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ===== API =====
-api_key = st.secrets.get("GEMINI_API_KEY")
+api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
-    st.error("ضع API KEY في Secrets")
+    st.error("⚠️ ضع مفتاح API")
     st.stop()
 
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-# ===== نظام المستخدم =====
-if "user" not in st.session_state:
-    st.session_state.user = None
-
-if "usage" not in st.session_state:
-    st.session_state.usage = 0
-
-# ===== تسجيل دخول بسيط =====
-if not st.session_state.user:
-    st.title("🔐 تسجيل الدخول")
-
-    username = st.text_input("اسم المستخدم")
-    password = st.text_input("كلمة المرور", type="password")
-
-    if st.button("دخول"):
-        if username and password:
-            st.session_state.user = username
-            st.rerun()
-    st.stop()
-
-# ===== خطة المستخدم =====
-plan = st.radio("نوع الحساب", ["مجاني", "مدفوع"])
-
-# ===== حد الاستخدام =====
-if plan == "مجاني":
-    if st.session_state.usage >= 5:
-        st.error("وصلت الحد المجاني اليومي")
-        st.stop()
-
 # ===== أنواع التقارير =====
 REPORTS = {
-    "📊 مشروع": ["الإنجازات", "التحديات", "النتائج", "التوصيات"],
-    "🎓 تدريب": ["الهدف", "المشاركين", "التفاعل", "النتائج"],
-    "💰 مالي": ["المصاريف", "الميزانية", "الفرق", "التوصيات"]
+    "📊 مشروع": [
+        ("الهدف العام", "مثال: تحسين الوصول للخدمات"),
+        ("أهم الأنشطة", "مثال: تنفيذ ورش تدريب"),
+        ("النتائج", "مثال: زيادة الكفاءة بنسبة 30%"),
+        ("التحديات", "مثال: تأخر الإمدادات"),
+        ("الحلول", "مثال: التعاقد مع مورد بديل")
+    ],
+    "🎓 تدريب": [
+        ("هدف التدريب", "تطوير المهارات"),
+        ("الفئة المستهدفة", "موظفين / طلاب"),
+        ("مستوى التفاعل", "مرتفع / متوسط"),
+        ("نتائج التعلم", "تحسن واضح"),
+        ("الأثر", "تطبيق فعلي للمهارات")
+    ]
 }
 
-st.title("🚀 المنصور AI")
+# ===== واجهة =====
+st.markdown("<div class='title'>🚀 المنصور AI</div>", unsafe_allow_html=True)
 
 rtype = st.selectbox("نوع التقرير", list(REPORTS.keys()))
 project = st.text_input("اسم المشروع")
 
-answers = []
-for i, q in enumerate(REPORTS[rtype]):
-    answers.append(st.text_area(q, key=i))
+answers = {}
 
-# ===== AI آمن =====
-def generate(prompt):
-    try:
-        return model.generate_content(prompt).text
-    except:
-        return "⚠️ خطأ في التوليد"
+# ===== الأسئلة =====
+for i, (q, hint) in enumerate(REPORTS[rtype]):
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown(f"**{q}**")
+    st.markdown(f"<div class='hint'>💡 {hint}</div>", unsafe_allow_html=True)
+    answers[q] = st.text_area("", key=i)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# ===== توليد =====
-if st.button("🚀 توليد التقرير"):
-    if not project or not all(answers):
-        st.warning("أكمل البيانات")
+# ===== توليد (بدون إظهار البرومبت) =====
+def generate():
+    data = "\n".join([f"{k}: {v}" for k,v in answers.items() if v])
+
+    text = f"""
+    تقرير رسمي احترافي:
+
+    المشروع: {project}
+    النوع: {rtype}
+
+    {data}
+
+    اكتب التقرير بأسلوب رسمي احترافي مع:
+    مقدمة - تحليل - نتائج - توصيات
+    """
+
+    return model.generate_content(text).text
+
+# ===== زر =====
+if st.button("🚀 إنشاء التقرير"):
+    if not project:
+        st.warning("أدخل اسم المشروع")
     else:
-        with st.spinner("جاري التوليد..."):
-            prompt = f"تقرير احترافي {project}\n"
-            for q, a in zip(REPORTS[rtype], answers):
-                prompt += f"{q}: {a}\n"
-
-            report = generate(prompt)
-
-        st.session_state.usage += 1
+        with st.spinner("جاري إعداد التقرير..."):
+            result = generate()
 
         st.success("تم إنشاء التقرير")
-        st.text_area("📄 التقرير", report, height=300)
 
-        # ===== حفظ =====
-        if "history" not in st.session_state:
-            st.session_state.history = []
-
-        st.session_state.history.append({
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "report": report
-        })
-
-        # ===== Word =====
-        doc = Document()
-        doc.add_paragraph(report)
-        buffer = BytesIO()
-        doc.save(buffer)
-        buffer.seek(0)
-
-        st.download_button("📄 تحميل Word", buffer, "report.docx")
-
-        # ===== PDF (مدفوع فقط) =====
-        if plan == "مدفوع":
-            pdf_buffer = BytesIO()
-            doc_pdf = SimpleDocTemplate(pdf_buffer)
-            styles = getSampleStyleSheet()
-            content = [Paragraph(report, styles["Normal"])]
-            doc_pdf.build(content)
-            pdf_buffer.seek(0)
-
-            st.download_button("📕 تحميل PDF", pdf_buffer, "report.pdf")
-        else:
-            st.info("PDF متاح فقط للحساب المدفوع")
-
-# ===== سجل =====
-st.write("📊 سجل التقارير")
-
-if "history" in st.session_state:
-    for item in st.session_state.history:
-        st.write(item["date"])
+        st.markdown(f"""
+        <div style="
+        background:white;
+        padding:25px;
+        border-radius:10px;
+        line-height:2;
+        border-right:8px solid #d4af37;">
+        {result}
+        </div>
+        """, unsafe_allow_html=True)
