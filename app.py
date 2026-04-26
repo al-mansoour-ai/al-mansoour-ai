@@ -7,96 +7,85 @@ import datetime
 import uuid
 
 # ==========================================
-# 1. إعدادات المنصة والهوية البصرية (تصحيح الألوان)
+# 1. إعدادات المنصة والهوية البصرية الحديثة (Modern UX)
 # ==========================================
 st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
 
+# نظام بصمة الجهاز والأرصدة (التجربة المجانية)
 if 'device_id' not in st.session_state: st.session_state.device_id = str(uuid.getnode())
+if 'free_trial_claimed' not in st.session_state: st.session_state.free_trial_claimed = False
 if 'user_balance' not in st.session_state: st.session_state.user_balance = 0
-if 'valid_codes' not in st.session_state: st.session_state.valid_codes = {"MANSOUR_VIP_2026": 100}
+if 'valid_codes' not in st.session_state: st.session_state.valid_codes = {}
 
+# CSS محسّن: ألوان هادئة، وشريط سفلي مطابق لمعايير تطبيقات التواصل
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
     #MainMenu, footer, header {visibility: hidden;}
     
-    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 70px; }
+    html, body, .stApp { background-color: #f8f9fa !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 70px; }
     
     h1, h2, h3, h4, p, span, div, label, li { 
-        text-align: right !important; direction: rtl !important; color: #0a192f !important;
+        text-align: right !important; direction: rtl !important; color: #2d3436 !important;
     }
-    h1, h2, h3 { color: #d4af37 !important; border-bottom: 2px solid #0a192f; padding-bottom: 10px; margin-bottom: 20px;}
+    h1, h2, h3 { color: #d4af37 !important; border-bottom: 1px solid #dfe6e9; padding-bottom: 10px; margin-bottom: 20px;}
     
     div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, .stSelectbox > div {
-        background-color: #ffffff !important; border: 1px solid #dcdde1 !important; border-radius: 8px !important;
+        background-color: #ffffff !important; border: 1px solid #dfe6e9 !important; border-radius: 8px !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.01);
     }
     
-    .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #0a192f; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-right: 5px solid #d4af37; }
+    .stButton > button { 
+        background-color: #0a192f !important; color: #ffffff !important; 
+        font-weight: 700 !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important;
+        border: none !important;
+    }
+    .stButton > button:hover { background-color: #d4af37 !important; color: #000000 !important; }
+    
+    .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #dfe6e9; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
     
     .whatsapp-btn-small {
         display: block; background-color: #25D366; color: white !important; text-align: center; 
-        padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; margin-top: 15px; border: none;
+        padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 15px; border: none;
     }
     
     /* ========================================= */
-    /* إصلاح ألوان الأزرار العامة والتنقل السفلي */
+    /* تصميم الشريط السفلي الأنيق (مثل واتساب/فيسبوك) */
     /* ========================================= */
-    
-    /* الأزرار العادية داخل الصفحة */
-    .stButton > button { 
-        background-color: #0a192f !important; 
-        border: 1px solid #d4af37 !important;
-        border-radius: 8px !important; width: 100% !important; padding: 12px !important;
-    }
-    .stButton > button p, .stButton > button span {
-        color: #ffffff !important; /* خط أبيض واضح جداً على الكحلي */
-        font-weight: 700 !important;
-    }
-    .stButton > button:hover, .stButton > button:active { 
-        background-color: #d4af37 !important; /* يتحول لذهبي عند الضغط */
-    }
-    .stButton > button:hover p, .stButton > button:active p,
-    .stButton > button:hover span, .stButton > button:active span {
-        color: #000000 !important; /* خط أسود فاحم على الذهبي */
-    }
-
-    /* الشريط السفلي الثابت (أفقي دائماً) */
     div[data-testid="stHorizontalBlock"]:last-of-type {
         position: fixed; bottom: 0; left: 0; width: 100vw;
-        background-color: #0a192f !important; /* خلفية الشريط كحلي */
+        background-color: #f8f9fa !important; /* نفس لون خلفية التطبيق */
         z-index: 99999;
-        padding: 10px 5px; box-shadow: 0px -5px 15px rgba(0, 0, 0, 0.2);
-        border-top: 3px solid #d4af37;
+        padding: 5px 0px 10px 0px; 
+        box-shadow: none !important;
+        border-top: 1px solid #dfe6e9 !important; /* فاصل خفيف جداً */
         flex-wrap: nowrap !important; justify-content: space-between !important;
-        gap: 5px !important; margin: 0 !important;
+        gap: 0px !important; margin: 0 !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type > div {
         min-width: 0 !important; width: 33.33% !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button {
-        height: 45px !important;
+        height: 50px !important;
         background-color: transparent !important;
-        border: 1px solid #d4af37 !important;
+        border: none !important; /* إزالة حدود الأزرار */
+        box-shadow: none !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button p {
-        color: #ffffff !important; /* أبيض ناصع قبل الضغط */
-        font-weight: bold !important;
-        font-size: 14px !important;
+        color: #b2bec3 !important; /* لون رمادي باهت للأزرار غير المفعلة */
+        font-weight: 600 !important;
+        font-size: 13px !important;
         margin: 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"]:last-of-type button:hover, 
-    div[data-testid="stHorizontalBlock"]:last-of-type button:active {
-        background-color: #d4af37 !important; /* ذهبي عند الضغط */
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button:hover p, 
     div[data-testid="stHorizontalBlock"]:last-of-type button:active p {
-        color: #000000 !important; /* أسود بارز عند الضغط */
+        color: #0a192f !important; /* يتحول للون الداكن الواضح عند الضغط */
+        font-weight: 700 !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. القاموس المنهجي الكامل (25 تقرير - 250 سؤال)
+# 2. القاموس المنهجي (25 تقرير - 250 سؤال)
 # ==========================================
 methodology_db = {
     "مسار الرقابة والامتثال (ISO 19011)": {
@@ -422,40 +411,42 @@ def change_page(page_name):
     st.session_state.current_page = page_name
     st.rerun()
 
+# منح باقة مجانية لأول مرة فقط (Freemium)
+def grant_free_trial():
+    if not st.session_state.free_trial_claimed:
+        st.session_state.user_balance += 1
+        st.session_state.free_trial_claimed = True
+
 # ==========================================
-# 4. بناء الصفحات والتنسيق الدقيق
+# 4. بناء الصفحات والتنسيق
 # ==========================================
 
 def login_page():
     st.markdown('<div class="card-box" style="margin-top: 50px;">', unsafe_allow_html=True)
-    st.title("🔐 دخول المنصة السيادية")
-    st.info(f"الجهاز مسجل ومحمي بالمعرف: {st.session_state.device_id[-6:]}")
+    st.title("🔐 الدخول للمنصة")
     
-    user_id = st.text_input("أدخل رقم الجوال أو البريد الإلكتروني للمتابعة:")
-    if st.button("تسجيل الدخول", use_container_width=True):
+    user_id = st.text_input("أدخل رقم الجوال للمتابعة:", placeholder="77XXXXXXX")
+    if st.button("دخول واختبار المنصة مجاناً", use_container_width=True):
         if user_id:
             st.session_state.logged_in = True
             st.session_state.user_id = user_id
+            grant_free_trial() # منح الباقة المجانية
             st.session_state.current_page = "platform"
             st.rerun()
         else:
-            st.warning("يرجى إدخال البيانات للمتابعة.")
+            st.warning("يرجى إدخال رقم الجوال للمتابعة.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 def platform_page():
     st.title("المنصور الاستراتيجية")
-    st.markdown(f"**رصيدك الحالي:** {st.session_state.user_balance} تقارير | **المستخدم:** {st.session_state.user_id}")
-    st.markdown("---")
+    st.info(f"رصيدك الحالي: **{st.session_state.user_balance} تقارير** | المستخدم: {st.session_state.user_id}")
     
     st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
-    # تعديل ترتيب الغلاف ليكون صفاً بصف لضمان عدم التداخل في الجوال
-    col1, col2 = st.columns(2)
-    org_name = col1.text_input("الجهة المصدرة للوثيقة:")
-    loc_name = col2.text_input("النطاق الجغرافي:")
-    
-    col3, col4 = st.columns(2)
-    proj_name = col3.text_input("اسم المشروع / المهمة:")
-    author_name = col4.text_input("إعداد (الاسم والمنصب):")
+    # رص الحقول فوق بعضها للوضوح التام في الجوال
+    org_name = st.text_input("الجهة المصدرة للوثيقة:", placeholder="مثال: مؤسسة شباب اليمن للتنمية")
+    loc_name = st.text_input("النطاق الجغرافي:", placeholder="مثال: تعز - مديرية المظفر")
+    proj_name = st.text_input("اسم المشروع / المهمة:", placeholder="مثال: مشروع التدخل السريع")
+    author_name = st.text_input("إعداد (الاسم والمنصب):", placeholder="مثال: منصور الوصابي - استشاري")
 
     st.markdown("---")
     
@@ -498,8 +489,9 @@ def platform_page():
         else:
             try:
                 genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY_HERE"))
+                # استخدام المحرك السريع والحديث لتجنب خطأ 404
                 try:
-                    model = genai.GenerativeModel('gemini-1.5-pro-latest')
+                    model = genai.GenerativeModel('gemini-1.5-flash') 
                 except:
                     model = genai.GenerativeModel('gemini-pro')
                 
@@ -521,9 +513,9 @@ def platform_page():
                 المرفقات المذكورة: {links_str}
                 
                 التعليمات الإلزامية للذكاء الاصطناعي:
-                1. ابدأ بغلاف التقرير الرسمي.
+                1. ابدأ بغلاف التقرير الرسمي وتفاصيله.
                 2. صغ ملخصاً تنفيذياً يعطي لمحة سريعة لمتخذ القرار.
-                3. اكتب التحليل بناءً على المعطيات بلغة رصينة، رسمية، مباشرة، تعتمد الأرقام فقط. تجنب الحشو الإنشائي.
+                3. اكتب التحليل بناءً على المعطيات بلغة رصينة، رسمية، مباشرة، تعتمد الأرقام فقط. تجنب الحشو.
                 4. اذكر التوصيات والمرفقات في النهاية بشكل مرتب.
                 """
                 
@@ -545,39 +537,39 @@ def platform_page():
                     doc.save(bio)
                     st.download_button("تحميل الوثيقة المعتمدة (Word)", bio.getvalue(), file_name=f"Report_{proj_name}.docx")
             except Exception as e:
-                st.error(f"عطل تقني في محرك الصياغة: {e}")
+                st.error(f"عطل تقني في الاتصال بـ Google API: {e}")
 
 def packages_page():
-    st.title("💳 باقات الاشتراك وتفعيل الرصيد")
+    st.title("💳 باقات الاشتراك")
     
     st.markdown("""
     <div class="card-box">
-        <h3 style="color:#0a192f;">باقة المنجز (3 تقارير)</h3>
-        <p>تناسب المهام السريعة والتقارير الفردية.<br><b style="color:#d4af37;">السعر: 10,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة المنجز بقيمة 10,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
+        <h3 style="color:#2d3436;">باقة البداية (3 تقارير)</h3>
+        <p>تناسب المهام الميدانية السريعة.<br><b style="color:#d4af37;">السعر: 1,000 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة 3 تقارير بقيمة 1000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
     </div>
     <div class="card-box">
-        <h3 style="color:#0a192f;">باقة الخبير (10 تقارير)</h3>
-        <p>الخيار الأفضل لمديري المشاريع والفرق الميدانية.<br><b style="color:#d4af37;">السعر: 25,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة الخبير بقيمة 25,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
+        <h3 style="color:#2d3436;">باقة التمكين (6 تقارير)</h3>
+        <p>لتقييم المشاريع الدورية والمتابعة المستمرة.<br><b style="color:#d4af37;">السعر: 1,500 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة 6 تقارير بقيمة 1500 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
     </div>
     <div class="card-box">
-        <h3 style="color:#0a192f;">الباقة السيادية المؤسسية (مفتوح)</h3>
-        <p>للمنظمات، مع إضافة مسارات مخصصة ودعم فني على مدار الساعة.<br><b style="color:#d4af37;">السعر: تواصل معنا لتحديد العرض</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاستفسار عن الباقة السيادية المؤسسية المفتوحة" class="whatsapp-btn-small" target="_blank">📱 تواصل معنا لطلب العرض</a>
+        <h3 style="color:#2d3436;">الباقة التنفيذية (12 تقرير)</h3>
+        <p>الخيار الأوفر للمنظمات والمدراء لإعداد تقارير سيادية شاملة.<br><b style="color:#d4af37;">السعر: 2,500 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في الباقة التنفيذية 12 تقرير بقيمة 2500 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
     st.subheader("تفعيل باقة جديدة")
     act_code = st.text_input("أدخل كود الشحن الذي استلمته من الإدارة:")
-    if st.button("تفعيل الرصيد"):
+    if st.button("شحن الرصيد"):
         if act_code in st.session_state.valid_codes:
             added_reports = st.session_state.valid_codes.pop(act_code)
             st.session_state.user_balance += added_reports
             st.success(f"تم الشحن بنجاح! تمت إضافة {added_reports} تقارير. رصيدك الكلي: {st.session_state.user_balance}")
         else:
-            st.error("الكود غير صحيح أو تم استخدامه مسبقاً. تأكد من الإدارة.")
+            st.error("الكود غير صحيح أو تم استخدامه مسبقاً.")
 
 def admin_page():
     st.markdown('<div class="card-box">', unsafe_allow_html=True)
@@ -586,16 +578,13 @@ def admin_page():
     
     if pw == "Mansour@2026":
         st.success("تم تأكيد الهوية. مرحباً بك سعادة المستشار.")
-        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["منجز (3 تقارير)", "خبير (10 تقارير)", "سيادي (100 تقرير)"])
+        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["باقة 3 تقارير", "باقة 6 تقارير", "باقة 12 تقرير"])
         
         if st.button("توليد كود التفعيل"):
             new_code = f"MS-{uuid.uuid4().hex[:6].upper()}"
-            if "منجز" in pack_type:
-                st.session_state.valid_codes[new_code] = 3
-            elif "خبير" in pack_type:
-                st.session_state.valid_codes[new_code] = 10
-            elif "سيادي" in pack_type:
-                st.session_state.valid_codes[new_code] = 100
+            if "3" in pack_type: st.session_state.valid_codes[new_code] = 3
+            elif "6" in pack_type: st.session_state.valid_codes[new_code] = 6
+            elif "12" in pack_type: st.session_state.valid_codes[new_code] = 12
                 
             st.info(f"الكود الجديد الجاهز للعميل: **{new_code}**")
     elif pw:
@@ -603,7 +592,7 @@ def admin_page():
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# 5. محرك التوجيه والشريط السفلي (Bottom Nav)
+# 5. محرك التوجيه والشريط السفلي (التصميم الجديد)
 # ==========================================
 if st.session_state.current_page == "login":
     login_page()
@@ -612,7 +601,7 @@ else:
     elif st.session_state.current_page == "packages": packages_page()
     elif st.session_state.current_page == "admin": admin_page()
 
-    # شريط التنقل السفلي الثابت والأفقي (دائماً في سطر واحد وواضح)
+    # شريط التنقل السفلي الأنيق والواضح
     nav1, nav2, nav3 = st.columns(3)
     with nav1:
         if st.button("🏠 المنصة"): change_page("platform")
