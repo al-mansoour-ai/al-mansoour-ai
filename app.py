@@ -5,25 +5,54 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 import datetime
 
-# 1. المعمارية البصرية الثابتة
+# 1. المعمارية البصرية الهادئة (Smooth UI)
 st.set_page_config(page_title="المنصور الاستراتيجية", layout="wide")
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap');
     #MainMenu, footer, header {visibility: hidden;}
-    .stApp { background-color: #0c0c0c !important; }
-    h1, h2, h3, h4, p, span, div, label, li { font-family: 'Cairo', sans-serif !important; text-align: right !important; direction: rtl !important; color: #ffffff; }
-    h1, h2, h3 { color: #D4AF37 !important; margin-bottom: 5px; }
-    input, textarea, .stSelectbox > div { background-color: #1a1a1a !important; border: 1px solid #D4AF37 !important; color: #ffffff !important; }
-    .stButton > button { background-color: #D4AF37 !important; color: #0c0c0c !important; font-weight: 700 !important; width: 100% !important; padding: 15px !important; }
-    .package-box { border: 2px solid #D4AF37; padding: 15px; border-radius: 8px; background-color: #111; margin-bottom: 20px; text-align: center; }
+    
+    /* خلفية هادئة مريحة للعين (Off-White / Light Grey) */
+    .stApp { background-color: #f8f9fa !important; }
+    
+    /* تنسيق النصوص بلون رمادي داكن احترافي */
+    h1, h2, h3, h4, p, span, div, label, li { 
+        font-family: 'Cairo', sans-serif !important; 
+        text-align: right !important; 
+        direction: rtl !important; 
+        color: #2d3436 !important; 
+    }
+    
+    /* لمسات ذهبية هادئة للمهمات فقط */
+    h1, h2 { color: #b8860b !important; border-bottom: 2px solid #b8860b; padding-bottom: 10px; }
+    
+    /* تنسيق الحقول بشكل عصري (Soft Edges) */
+    div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, .stSelectbox > div {
+        background-color: #ffffff !important; 
+        border: 1px solid #dfe6e9 !important; 
+        border-radius: 10px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* الزر التنفيذي بلون سيادي هادئ */
+    .stButton > button { 
+        background-color: #2d3436 !important; 
+        color: #ffffff !important; 
+        font-weight: 600 !important; 
+        border-radius: 10px !important;
+        padding: 12px !important;
+        width: 100% !important;
+        border: none !important;
+    }
+    .stButton > button:hover { background-color: #b8860b !important; color: white !important; }
+    
+    .package-card { background: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #dfe6e9; margin-bottom: 25px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. القاموس المنهجي (The Scientific Database)
-# هنا تم وضع 10 أسئلة لكل نموذج بناءً على المنهجيات العالمية
-methodology_db = {
-    "مسار الرقابة (ISO 19011)": {
+# 2. القاموس المنهجي العالمي الكامل (5 مسارات × 10 أسئلة)
+full_methodology_db = {
+    "مسار الرقابة والامتثال (ISO 19011)": {
         "تقرير النزول الميداني الفني": [
             ("نطاق الزيارة والمرحلة التشغيلية:", "مثال: معاينة صب القواعد في مشروع مجمع المنصور"),
             ("نسبة الإنجاز الفعلي vs المستهدف (%):", "مثال: المستهدف 40%، الفعلي 25%"),
@@ -39,7 +68,14 @@ methodology_db = {
         "تقرير تدقيق الامتثال الإداري": [
             ("المعيار القانوني المرجعي المحقق:", "مثال: اللائحة التنفيذية لقانون العمل مادة 40"),
             ("تحليل الفجوة الإجرائية (Gap Analysis):", "مثال: عدم وجود توصيف وظيفي معتمد لـ 30% من الطاقم"),
-            # يتم إكمال الـ 10 أسئلة هنا بنفس النمط...
+            ("دقة السجلات المالية والدفترية:", "مثال: وجود تضارب في قيود الصرف النثري"),
+            ("الالتزام بالهيكل التنظيمي المعتمد:", "مثال: تداخل في الصلاحيات بين مدير المشتريات والمالية"),
+            ("كفاءة نظام الأرشفة والتوثيق:", "مثال: فقدان مستندات أصلية لمناقصات سابقة"),
+            ("مستوى الشفافية في الإجراءات:", "مثال: غياب محاضر فتح المظاريف لبعض المشتريات"),
+            ("الامتثال للوائح الجزاءات والمكافآت:", "مثال: صرف مكافآت دون معايير إنتاجية واضحة"),
+            ("مدى توفر أدلة الإجراءات (SOPs):", "مثال: العمل يتم باجتهاد شخصي لغياب الأدلة المكتوبة"),
+            ("تقييم بيئة العمل الداخلية:", "مثال: ارتفاع معدل دوران الوظائف في الإدارة الوسطى"),
+            ("التوصية الإدارية النهائية:", "مثال: ضرورة البدء بعملية إعادة هيكلة شاملة للقطاع الإداري")
         ]
     },
     "مسار الأثر (Kirkpatrick Model)": {
@@ -49,24 +85,73 @@ methodology_db = {
             ("التغير السلوكي الملموس في بيئة العمل:", "مثال: التزام الموظفين باستخدام نظام الأرشفة الجديد"),
             ("التحسن في مؤشرات الأداء (KPIs):", "مثال: انخفاض زمن الاستجابة للشكاوى بنسبة 40%"),
             ("العائد على الاستثمار المتوقع (ROI):", "مثال: توفير 2000$ شهرياً من هدر الورق"),
-            # يتم إكمال الـ 10 أسئلة هنا بنفس النمط...
+            ("مدى نقل المعرفة للزملاء غير المشاركين:", "مثال: عقد جلسات نقل معرفة داخلية لـ 15 موظفاً إضافياً"),
+            ("ملاءمة المادة التدريبية لواقع العمل:", "مثال: المحتوى نظري جداً وصعب التطبيق في الميدان"),
+            ("دعم الإدارة المباشرة لتطبيق المهارات:", "مثال: رفض المدير المباشر استخدام النماذج الجديدة"),
+            ("الأثر طويل الأمد على سمعة المؤسسة:", "مثال: تصدر المؤسسة لمراتب متقدمة في جودة الخدمة"),
+            ("التوصية لتطوير البرامج القادمة:", "مثال: زيادة الجانب العملي بنسبة 70% في الدورات")
+        ]
+    },
+    "مسار الاستراتيجية (Risk & Feasibility)": {
+        "دراسة الجدوى ومخاطر الاستثمار": [
+            ("الفرصة السوقية والفجوة المستهدفة:", "مثال: غياب خدمات التوصيل السريع في ريف العاصمة"),
+            ("تحليل الميزة التنافسية السيادية:", "مثال: امتلاك أسطول سيارات يعمل بالطاقة الشمسية"),
+            ("تقدير التكلفة الرأسمالية (CAPEX):", "مثال: الحاجة لـ 50 ألف دولار للتجهيزات الأولية"),
+            ("تقدير التكاليف التشغيلية (OPEX):", "مثال: نفقات شهرية ثابتة تقدر بـ 3000 دولار"),
+            ("توقعات الإيرادات ونقطة التعادل:", "مثال: الوصول لنقطة التعادل خلال 14 شهراً"),
+            ("أخطر 3 مخاطر مالية وسياسية:", "مثال: تذبذب الصرف، عدم استقرار التشريعات الضريبية"),
+            ("استراتيجيات تخفيف المخاطر:", "مثال: التحوط بالعملة الصعبة، تنويع مصادر التوريد"),
+            ("تحليل القوى العاملة المطلوبة:", "مثال: الحاجة لـ 5 خبراء تقنيين و20 موظفاً ميدانياً"),
+            ("الأثر البيئي والاجتماعي للمشروع:", "مثال: توفير 25 فرصة عمل محلية وتقليل الانبعاثات"),
+            ("القرار الاستثماري النهائي:", "مثال: المشروع مجدٍ تقنياً ومالياً ويُوصى بالبدء الفوري")
+        ]
+    },
+    "مسار العمليات (Lean Management)": {
+        "تقرير الإنجاز الدوري للمشاريع": [
+            ("المستهدفات التشغيلية للمرحلة:", "مثال: إتمام بناء الطابق الرابع قبل نهاية الشهر"),
+            ("نسبة تحقق الأداء الفعلي:", "مثال: تم إنجاز 90% من المهام المجدولة"),
+            ("تحليل الهدر في الوقت (Idle Time):", "مثال: ضياع 4 ساعات يومياً بسبب انقطاع التيار"),
+            ("كفاءة استهلاك الموازنة التشغيلية:", "مثال: صرف 110% من الميزانية بسبب ارتفاع الأسعار"),
+            ("جودة المخرجات وتسليمات المرحلة:", "مثال: المخرجات مطابقة بنسبة 100% لمعايير الجودة"),
+            ("العوائق البيروقراطية والإدارية:", "مثال: تأخر توقيع الاعتمادات المالية من المكتب الرئيسي"),
+            ("أداء الموردين والشركاء:", "مثال: مورد الإسمنت تأخر مرتين عن المواعيد المحددة"),
+            ("إدارة الكادر البشري والإنتاجية:", "مثال: ارتفاع الإنتاجية بعد تطبيق نظام الحوافز"),
+            ("الاحتياجات اللوجستية للمرحلة القادمة:", "مثال: الحاجة لتوفير مخزون ديزل لـ 30 يوماً"),
+            ("خطة العمل التصحيحية (Action Plan):", "مثال: تكثيف النوبات المسائية لتعويض تأخير الأسبوع الأول")
+        ]
+    },
+    "مسار العلاقات (Visibility)": {
+        "تقرير التغطية الإعلامية والشراكات": [
+            ("الرسالة الذهنية المستهدفة من الحدث:", "مثال: ترسيخ صورة المؤسسة كقائد في التحول الرقمي"),
+            ("حجم الوصول الرقمي (Reach):", "مثال: مليون ظهور على فيسبوك، 500 ألف مشاهدة يوتيوب"),
+            ("عمق التفاعل النوعي (Engagement):", "مثال: 5000 تعليق إيجابي، 200 طلب شراكة جديد"),
+            ("قائمة الشركاء والمؤثرين المشاركين:", "مثال: حضور 5 قنوات فضائية و10 ناشطين رقميين"),
+            ("تحليل انطباعات الجمهور المستهدف:", "مثال: 85% من الجمهور يرى المؤسسة موثوقة جداً"),
+            ("جودة الأصول الرقمية المنتجة:", "مثال: تم إنتاج فيلم وثائقي وصور بدقة 4K للمشروع"),
+            ("الفجوات في التغطية الإعلامية:", "مثال: ضعف الحضور في الصحافة الورقية المكتوبة"),
+            ("العائد الإعلامي مقابل التكلفة (EMV):", "مثال: قيمة التغطية المجانية تعادل 10 آلاف دولار"),
+            ("الدروس المستفادة للحملات القادمة:", "مثال: ضرورة البدء بالحملة التشويقية قبل أسبوعين"),
+            ("التوصية الاستراتيجية للعلاقات:", "مثال: توقيع عقود شراكة طويلة الأمد مع القنوات الفعالة")
         ]
     }
 }
 
-# 3. واجهة بوابة الباقات (صدر الصفحة)
+# 3. بناء الواجهة السيادية (Layout)
 st.title("المنصور الاستراتيجية")
-st.markdown('<div class="package-box">', unsafe_allow_html=True)
-st.subheader("💳 بوابة شحن الباقات السيادية")
-col_p1, col_p2 = st.columns([2, 1])
-with col_p1:
-    activation_code = st.text_input("أدخل كود تفعيل الباقة:", type="password")
-with col_p2:
-    st.write("**تواصل للشحن:** 774575749")
-    st.write("**الباقات:** [منجز | خبير | سيادي]")
-st.markdown('</div>', unsafe_allow_html=True)
 
-# 4. الطبقة الإدارية (الغلاف)
+# قسم الاشتراك (بوابة هادئة)
+with st.container():
+    st.markdown('<div class="package-card">', unsafe_allow_html=True)
+    st.subheader("💳 بوابة شحن الرصيد")
+    col_p1, col_p2 = st.columns([2, 1])
+    with col_p1:
+        activation_code = st.text_input("أدخل كود تفعيل الباقة (مثال: MANSOUR_3):", type="password")
+    with col_p2:
+        st.write("**لطلب الأكواد:** 774575749")
+        st.write("**الباقات:** [منجز | خبير | سيادي]")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# الطبقة الإدارية
 st.markdown("### 🏛️ أولاً: البيانات الإدارية")
 c1, c2 = st.columns(2)
 with c1:
@@ -78,54 +163,53 @@ with c2:
 
 st.markdown("---")
 
-# 5. الطبقة المنهجية (المسارات والفرعيات والأمثلة)
+# الطبقة المنهجية (الخمسة مسارات)
 st.markdown("### 🔍 ثانياً: الاستنطاق المنهجي")
-selected_pillar = st.selectbox("1. حدد المسار الرئيسي:", list(methodology_db.keys()))
-selected_report = st.selectbox("2. حدد التقرير التخصصي (الفرعي):", list(methodology_db[selected_pillar].keys()))
+selected_pillar = st.selectbox("1. حدد المسار الاستراتيجي الرئيسي:", list(full_methodology_db.keys()))
+selected_report = st.selectbox("2. حدد التقرير التخصصي المنهجي:", list(full_methodology_db[selected_pillar].keys()))
 
 st.success(f"المنهجية المطبقة حالياً: {selected_report}")
 
-# توليد الـ 10 أسئلة مع أمثلتها
+# توليد الـ 10 أسئلة المنهجية
 user_answers = {}
-questions_list = methodology_db[selected_pillar][selected_report]
+questions_list = full_methodology_db[selected_pillar][selected_report]
 
+# توزيع الأسئلة في حاويات لسهولة التصفح
 for i, (q_text, q_hint) in enumerate(questions_list):
     user_answers[q_text] = st.text_area(f"{i+1}. {q_text}", placeholder=f"إرشاد: {q_hint}", height=100)
 
 st.markdown("---")
 
-# 6. الطبقة الاعتمادية
+# الطبقة الاعتمادية
 st.markdown("### 📝 ثالثاً: الخواتيم والاعتماد")
-final_recs = st.text_area("التوصيات والمقترحات الاستراتيجية للإدارة العليا:")
-files_list = st.text_input("الملاحق والشواهد المرفقة:")
+final_recs = st.text_area("التوصيات والمقترحات الاستراتيجية الختامية:")
+files_list = st.text_input("الملاحق والشواهد المرفقة (صور، روابط، مستندات):")
 
-# 7. المحرك التنفيذي (Gemini Engine)
+# 4. محرك التوليد (Gemini Engine)
 if st.button("اعتماد وتوليد الوثيقة السيادية"):
     if not activation_code:
-        st.error("⚠️ يجب إدخال كود التفعيل لتشغيل المحرك.")
+        st.error("⚠️ يرجى إدخال كود التفعيل لتشغيل المحرك المنهجي.")
     elif not (org_name and proj_name and user_info):
-        st.warning("⚠️ يرجى استكمال بيانات الغلاف.")
+        st.warning("⚠️ يرجى استكمال بيانات غلاف الوثيقة الإدارية.")
     else:
         try:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             model = genai.GenerativeModel('gemini-1.5-pro')
             
-            # صهر البيانات في برومبت منهجي
             data_feed = "\n".join([f"{k} {v}" for k, v in user_answers.items() if v])
             prompt = f"""
             بصفتك مستشاراً تنفيذياً عالمياً، صغ تقرير '{selected_report}' لجهة '{org_name}' حول '{proj_name}'.
-            الموقع: {loc_name}. إعداد: {user_info}.
-            المنهجية المتبعة: {selected_pillar}.
-            البيانات الميدانية:
+            الموقع: {loc_name}. إعداد: {user_info}. المنهجية: {selected_pillar}.
+            البيانات الميدانية المحللة:
             {data_feed}
-            التوصيات: {final_recs}
+            التوصيات الاستراتيجية: {final_recs}
             الملاحق: {files_list}
-            
-            [التعليمات]: صغ التقرير بلغة رصينة، رسمية، ركز على النتائج والأرقام. ابدأ بالغلاف الرسمي ثم الملخص ثم التحليل ثم التوصيات.
+            اللغة: رسمية، رصينة، تعتمد الأرقام والنتائج فقط.
             """
             
-            with st.spinner("جاري المعالجة المنهجية..."):
+            with st.spinner("جاري صهر البيانات في القالب العالمي..."):
                 response = model.generate_content(prompt)
+                st.success("تم الاعتماد بنجاح")
                 st.info(response.text)
                 
                 # تصدير Word
