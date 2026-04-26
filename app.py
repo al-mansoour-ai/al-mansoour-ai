@@ -5,7 +5,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 import datetime
 
-# 1. المعمارية البصرية السيادية
+# 1. المعمارية البصرية (إلغاء الجوانب لضمان ثبات الجوال)
 st.set_page_config(page_title="المنصور الاستراتيجية", layout="wide")
 st.markdown("""
 <style>
@@ -13,99 +13,110 @@ st.markdown("""
     #MainMenu, footer, header {visibility: hidden;}
     .stApp { background-color: #0c0c0c !important; }
     h1, h2, h3, h4, p, span, div, label, li { font-family: 'Cairo', sans-serif !important; text-align: right !important; direction: rtl !important; color: #ffffff; }
-    h1, h2, h3 { color: #D4AF37 !important; }
+    h1, h2, h3 { color: #D4AF37 !important; margin-bottom: 0px; }
     input, textarea, div[role="listbox"], .stSelectbox > div { background-color: #1a1a1a !important; border: 1px solid #D4AF37 !important; color: #ffffff !important; text-align: right !important; }
-    .stButton > button { background-color: #D4AF37 !important; color: #0c0c0c !important; font-weight: 700 !important; width: 100% !important; }
+    .stButton > button { background-color: #D4AF37 !important; color: #0c0c0c !important; font-weight: 700 !important; width: 100% !important; padding: 15px !important; }
+    .status-box { border: 2px solid #D4AF37; padding: 20px; border-radius: 10px; background-color: #111; margin-bottom: 25px; }
 </style>
 """, unsafe_allow_html=True)
 
-# 2. الهياكل المنهجية العالمية (الخمسة المسارات)
+# 2. قاعدة البيانات العالمية (المسارات + الفروع + الأمثلة)
 reports_db = {
     "مسار الرقابة (ISO 19011)": {
-        "تقرير النزول الميداني": ["نسبة الإنجاز مقارنة بالمخطط:", "حالات عدم المطابقة الفنية:", "مسببات الانحراف (Root Causes):", "مؤشرات الهدر المالي:"],
-        "تقرير تفتيش الامتثال": ["المعيار القانوني المرجعي:", "المخالفات المرصودة بالأدلة:", "الأثر المترتب على المخالفة:"]
+        "تقرير النزول الميداني": [
+            ("نسبة الإنجاز مقارنة بالمخطط:", "مثال: المخطط 60%، المنفذ فعلياً 40%"),
+            ("حالات عدم المطابقة الفنية:", "مثال: قطر الأنابيب 4 إنش بدلاً من 6 إنش المعتمدة"),
+            ("مسببات الانحراف الجذرية:", "مثال: تأخر توريد المواد بسبب أزمة الوقود"),
+            ("مؤشرات الهدر المالي:", "مثال: بقاء المعدات مستأجرة دون عمل لمدة 10 أيام")
+        ],
+        "تقرير تفتيش الامتثال": [
+            ("المعيار القانوني المرجعي:", "مثال: مادة السلامة المهنية في قانون العمل"),
+            ("المخالفات المرصودة بالأدلة:", "مثال: عدم ارتداء خوذ السلامة في منطقة الرافعة")
+        ]
     },
     "مسار الأثر (Kirkpatrick Model)": {
-        "تقرير قياس الأثر": ["التحول الملموس في الفئة المستهدفة:", "مؤشرات النجاح الرقمية (KPIs):", "الاستدامة والعائد المجتمعي:"]
+        "تقرير تقييم أثر التدريب": [
+            ("التحول الملموس في الأداء:", "مثال: انخفاض زمن المعاملة من ساعة إلى 20 دقيقة"),
+            ("مؤشرات النجاح الرقمية (KPIs):", "مثال: وصول الخدمة لـ 500 أسرة إضافية شهرياً")
+        ]
     },
-    "مسار الاستراتيجية (Risk Management)": {
-        "دراسة الجدوى والمخاطر": ["الفرصة السوقية المستهدفة:", "أخطر التهديدات وخطة الطوارئ:", "فترة استرداد رأس المال:"]
-    },
-    "مسار العمليات (Lean Management)": {
-        "تقرير الإنجاز الدوري": ["المستهدفات المحققة:", "كفاءة الموازنة التشغيلية:", "الفجوات التنفيذية الحالية:"]
-    },
-    "مسار العلاقات (Visibility)": {
-        "تقرير التغطية الإعلامية": ["حجم الوصول الرقمي والميداني:", "قائمة الشركاء والمؤثرين:", "تحليل انطباعات الجمهور:"]
+    "مسار الاستراتيجية": {
+        "دراسة الجدوى والمخاطر": [
+            ("الفرصة السوقية المستهدفة:", "مثال: سد فجوة توريد الطاقة المتجددة للمناطق الريفية"),
+            ("أهم 3 مخاطر وخطة العلاج:", "مثال: تقلب سعر الصرف (العلاج: الشراء المسبق للأصول)")
+        ]
     }
 }
 
-# 3. إدارة التوثيق والاشتراك
-with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gold_Star_Solid.svg/1024px-Gold_Star_Solid.svg.png", width=60)
-    st.header("بوابـة الاشتـراك")
-    # ملاحظة: في النسخة الاحترافية يتم ربط هذا بقاعدة بيانات خارجية
-    st.info("نظام الأرصدة المسبقة الدفع")
-    auth_code = st.text_input("كود التفعيل السيادي:", type="password")
-    
+# 3. إدارة الاشتراك والرصيد (في صدر الواجهة)
 st.title("المنصور الاستراتيجية")
-st.markdown("### بناء الوثيقة المعتمدة")
+with st.container():
+    st.markdown('<div class="status-box">', unsafe_allow_html=True)
+    st.subheader("💳 بوابة شحن الباقات")
+    col_sub1, col_sub2 = st.columns([2, 1])
+    with col_sub1:
+        auth_code = st.text_input("أدخل كود تفعيل الباقة (لفتح التوليد):", type="password")
+    with col_sub2:
+        st.write("لطلب الأكواد: 774575749")
+        st.write("الباقات: [منجز (3) - خبير (10) - سيادي (VIP)]")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# الطبقة الإدارية الإلزامية (الغلاف)
-col1, col2 = st.columns(2)
-with col1:
-    org = st.text_input("الجهة المصدرة للتقرير:")
-    proj = st.text_input("اسم المشروع / المهمة:")
-with col2:
-    zone = st.text_input("النطاق الجغرافي:")
+# 4. بناء الوثيقة (الطبقة الإدارية)
+st.markdown("### 🏛️ أولاً: البيانات الإدارية (غلاف الوثيقة)")
+col_meta1, col_meta2 = st.columns(2)
+with col_meta1:
+    org = st.text_input("الجهة المصدرة للتقرير:", placeholder="مثال: مؤسسة شباب اليمن")
+    proj = st.text_input("اسم المشروع / المهمة:", placeholder="مثال: مشروع الاستجابة الطارئة")
+with col_meta2:
+    zone = st.text_input("النطاق الجغرافي:", placeholder="مثال: اليمن - محافظة مأرب")
     user = st.text_input("مُعد الوثيقة (الاسم والمنصب):")
 
 st.markdown("---")
 
-# الطبقة التحليلية (المنهجية)
-p_choice = st.selectbox("المسار المنهجي:", list(reports_db.keys()))
-r_choice = st.selectbox("نوع الوثيقة:", list(reports_db[p_choice].keys()))
+# 5. الطبقة المنهجية (المسارات والفرعية والأمثلة)
+st.markdown("### 🔍 ثانياً: الاستنطاق المنهجي (المسارات العالمية)")
+p_choice = st.selectbox("حدد المسار الرئيسي:", list(reports_db.keys()))
+r_choice = st.selectbox("حدد التقرير الفرعي:", list(reports_db[p_choice].keys()))
+
+st.info(f"نظام الاستنطاق مفعل لـ: {r_choice}")
 
 answers = {}
-for q in reports_db[p_choice][r_choice]:
-    answers[q] = st.text_area(q)
+# عرض الأسئلة مع الأمثلة التوضيحية (Placeholders)
+for q_text, q_hint in reports_db[p_choice][r_choice]:
+    answers[q_text] = st.text_area(q_text, placeholder=f"إرشاد: {q_hint}")
 
 st.markdown("---")
 
-# الطبقة الاعتمادية (الختامية)
-recs = st.text_area("التوصيات والمقترحات الاستراتيجية للإدارة العليا:")
-apps = st.text_input("الملاحق المرفقة (شواهد، صور، كشوفات):")
+# 6. الطبقة الاعتمادية
+st.markdown("### 📝 ثالثاً: الخواتيم والاعتماد")
+recs = st.text_area("التوصيات والمقترحات الاستراتيجية الختامية:")
+apps = st.text_input("الملاحق المرفقة (شواهد، صور، روابط):")
 
-# 4. محرك التوليد الصارم
-if st.button("اعتماد وتوليد الوثيقة"):
-    # التحقق المنهجي
-    if not (org and proj and user and auth_code):
-        st.error("خطأ إداري: يجب استكمال بيانات الغلاف وكود التفعيل.")
+# 7. المحرك التنفيذي
+if st.button("اعتماد وتوليد الوثيقة السيادية"):
+    # التحقق من كود التفعيل والبيانات
+    if not auth_code:
+        st.error("⚠️ يجب إدخال كود تفعيل الباقة لتشغيل المحرك الذكي.")
+    elif not (org and proj and user):
+        st.warning("⚠️ يرجى استكمال بيانات غلاف الوثيقة (الجهة، المشروع، المعد).")
     else:
         try:
             genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             model = genai.GenerativeModel('gemini-1.5-pro')
             
-            data_feed = "\n".join([f"{k}: {v}" for k, v in answers.items() if v])
-            prompt = f"""
-            أنت مستشار توثيق عالمي. صغ '{r_choice}' لجهة '{org}' بخصوص '{proj}'.
-            الهيكل الإلزامي:
-            1. غلاف التقرير (الجهة، المشروع، الموقع: {zone}، المعد، التاريخ).
-            2. الملخص التنفيذي.
-            3. التحليل المنهجي بناءً على: {data_feed}.
-            4. التوصيات الاستراتيجية: {recs}.
-            5. الملاحق: {apps}.
-            اللغة: رسمية، رصينة، تعتمد الأرقام.
-            """
+            data_feed = "\n".join([f"{k} {v}" for k, v in answers.items() if v])
+            prompt = f"بصفتك مستشاراً عالمياً، صغ تقرير {r_choice} لجهة {org} حول {proj}. النطاق: {zone}. البيانات الميدانية: {data_feed}. التوصيات: {recs}. الملاحق: {apps}."
             
-            with st.spinner("جاري المعالجة المنهجية..."):
+            with st.spinner("جاري المعالجة المنهجية وصياغة الملف..."):
                 response = model.generate_content(prompt)
-                st.success("تم الاعتماد")
+                st.success("تم الاعتماد بنجاح")
+                st.markdown("#### معاينة الوثيقة:")
                 st.info(response.text)
                 
-                # إنشاء ملف Word احترافي
+                # تصدير Word
                 doc = Document()
                 doc.add_heading(f"{org} - {r_choice}", 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
-                doc.add_paragraph(f"المشروع: {proj}\nالنطاق الجغرافي: {zone}\nإعداد: {user}").alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                doc.add_paragraph(f"المشروع: {proj} | الموقع: {zone}\nالتاريخ: {datetime.date.today()}\nإعداد: {user}").alignment = WD_ALIGN_PARAGRAPH.RIGHT
                 for p in response.text.split('\n'):
                     if p.strip():
                         para = doc.add_paragraph(p.strip())
@@ -113,6 +124,6 @@ if st.button("اعتماد وتوليد الوثيقة"):
                 
                 bio = io.BytesIO()
                 doc.save(bio)
-                st.download_button("تحميل الوثيقة المعتمدة (Word)", bio.getvalue(), file_name=f"Report_{proj}.docx")
+                st.download_button("تحميل الوثيقة الرسمية (Word)", bio.getvalue(), file_name=f"Report_{proj}.docx")
         except Exception as e:
             st.error(f"عطل في المحرك: {e}")
