@@ -6,185 +6,186 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
 
 # ==========================================
-# 1. إعدادات الصفحة والهوية البصرية (Branding)
+# 1. الإعدادات السيادية والهوية البصرية
 # ==========================================
-st.set_page_config(page_title="المنصور الاستراتيجية | التقارير السيادية", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(
+    page_title="المنصور الاستراتيجية | إدارة التقارير السيادية",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# تخصيص CSS للون الأسود الفخم والذهبي والتوافق مع الجوال
-custom_css = """
+# كود CSS لتنظيف الواجهة وإخفاء أدوات Streamlit وفرد الهوية البصرية
+clean_ui_css = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
     
-    html, body, [class*="st-"] {
-        font-family: 'Cairo', sans-serif !important;
-        background-color: #0c0c0c !important;
-        color: #ffffff !important;
-    }
+    /* إخفاء القوائم الافتراضية لـ Streamlit */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     
-    .stMarkdown, .stTextInput, .stTextArea, .stRadio, .stButton, div[data-testid="stSidebar"] {
-        direction: rtl;
-        text-align: right;
-    }
+    /* الهوية البصرية (أسود وذهبي) */
+    .stApp { background-color: #0c0c0c !important; }
+    h1, h2, h3, p, span, div, label, li { font-family: 'Cairo', sans-serif !important; }
     
-    h1, h2, h3 {
-        color: #D4AF37 !important;
-        font-weight: bold;
-        direction: rtl;
-        text-align: right;
-    }
+    h1, h2, h3 { color: #D4AF37 !important; text-align: right !important; direction: rtl !important; }
+    .stMarkdown, label, .stRadio, p, .stSelectbox { text-align: right !important; direction: rtl !important; color: #ffffff !important; }
     
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
+    /* تنسيق الحقول */
+    div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, div[data-baseweb="select"] > div {
         background-color: #1a1a1a !important;
-        color: #ffffff !important;
         border: 1px solid #D4AF37 !important;
-        border-radius: 4px;
-        direction: rtl;
-        text-align: right;
+        color: #ffffff !important;
     }
+    input, textarea, div[role="listbox"] { color: #ffffff !important; text-align: right !important; direction: rtl !important; }
     
-    .stButton>button {
+    /* الزر التنفيذي */
+    .stButton > button {
         background-color: #D4AF37 !important;
         color: #0c0c0c !important;
         font-weight: 700 !important;
-        font-family: 'Cairo', sans-serif !important;
+        width: 100% !important;
         border: none !important;
-        padding: 10px 24px !important;
-        width: 100%;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background-color: #ffffff !important;
-        color: #000000 !important;
+        padding: 15px !important;
+        font-size: 18px !important;
     }
     
-    [data-testid="stSidebar"] {
-        background-color: #111111 !important;
-        border-left: 2px solid #D4AF37;
-    }
-
-    @media (max-width: 768px) {
-        [data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-        }
-    }
+    /* اللوحة الجانبية */
+    [data-testid="stSidebar"] { background-color: #111111 !important; border-left: 2px solid #D4AF37 !important; }
 </style>
 """
-st.markdown(custom_css, unsafe_allow_html=True)
+st.markdown(clean_ui_css, unsafe_allow_html=True)
 
 # ==========================================
-# 2. دوال المخرجات (Output Functions)
+# 2. قاعدة البيانات الشجرية (The Sovereign Tree)
 # ==========================================
-def create_word_doc(text_content, title_text):
-    """دالة تحويل النص المولد إلى ملف Word منسق"""
+reports_tree = {
+    "مسار الرقابة والامتثال": {
+        "تقرير النزول الميداني": [
+            "النطاق الجغرافي والمقاول المنفذ:", "نسبة الإنجاز الفعلي مقارنة بالمستهدف (%):",
+            "مسببات الانحراف أو التأخير:", "حالات عدم المطابقة مع كراسة الشروط:",
+            "مظاهر الهدر المالي أو الموارد:", "المخاطر الكامنة وبروتوكولات السلامة:",
+            "التوجيهات التصحيحية العاجلة المطلوبة:"
+        ],
+        "تقرير تفتيش الامتثال": [
+            "المعيار القانوني محل التفتيش:", "درجة الالتزام (عالية/متوسطة/منخفضة):",
+            "المخالفات المرصودة بالأدلة:", "الأثر المترجم للمخالفة:", "الإجراء العقابي أو التصحيحي المقترح:"
+        ]
+    },
+    "مسار الأثر": {
+        "تقرير ختام وتقييم مشروع": [
+            "الغاية الاستراتيجية للمشروع:", "إجمالي عدد المستفيدين (أرقام):",
+            "العائد المجتمعي الملموس:", "مؤشرات النجاح المحققة (KPIs):",
+            "الدروس المستفادة للاستدامة:", "التوصية بنسخ التجربة (نعم/لا مع السبب):"
+        ]
+    },
+    "مسار الاستراتيجية": {
+        "دراسة جدوى ومخاطر": [
+            "الفرصة السوقية المستهدفة:", "حجم الاستثمار الرأسمالي (CAPEX):",
+            "الميزة التنافسية السيادية:", "أخطر 3 تهديدات للفشل وكيفية علاجها:",
+            "فترة استرداد رأس المال المتوقعة:"
+        ]
+    },
+    "مسار العمليات": {
+        "تقرير الإنجاز الدوري": [
+            "المستهدفات التشغيلية للفترة:", "نسبة تحقق الأداء الفعلي:",
+            "الفجوات التنفيذية وأسبابها:", "كفاءة استهلاك الموازنة التشغيلية:",
+            "خطة العمل للمرحلة القادمة:"
+        ]
+    },
+    "مسار العلاقات": {
+        "تقرير التغطية الإعلامية": [
+            "الرسالة الذهنية المستهدفة:", "حجم الوصول الرقمي والميداني:",
+            "قائمة الشركاء والمؤثرين المشاركين:", "تحليل انطباعات الجمهور:",
+            "الأصول الرقمية الموثقة (صور/فيديو):"
+        ]
+    }
+}
+
+# ==========================================
+# 3. المنطق الخلفي والمخرجات
+# ==========================================
+def create_docx(text, title):
     doc = Document()
-    title = doc.add_heading(f'{title_text} - سري وتنفيذي', 0)
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
-    for paragraph in text_content.split('\n'):
-        if paragraph.strip():
-            p = doc.add_paragraph(paragraph.strip())
+    h = doc.add_heading(title, 0)
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for line in text.split('\n'):
+        if line.strip():
+            p = doc.add_paragraph(line.strip())
             p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            
     bio = io.BytesIO()
     doc.save(bio)
     return bio.getvalue()
 
 # ==========================================
-# 3. قاعدة البيانات الاستقصائية (The Brain)
-# ==========================================
-reports_database = {
-    "مسار الرقابة: تقرير النزول الميداني": [
-        "النطاق الجغرافي والمقاول المنفذ:",
-        "نسبة الإنجاز الفعلي مقارنة بالمستهدف (%):",
-        "مسببات الانحراف أو التأخير (إن وجدت):",
-        "حالات عدم المطابقة الفنية مع كراسة الشروط:",
-        "مظاهر الهدر المالي أو تكدس الموارد:",
-        "المخاطر الكامنة وبروتوكولات السلامة:",
-        "التوجيهات التصحيحية العاجلة المطلوبة:"
-    ],
-    "مسار الأثر: تقرير ختام مشروع": [
-        "الغاية الاستراتيجية والمشكلة الجذرية للمشروع:",
-        "عدد المستفيدين (المباشرين وغير المباشرين):",
-        "العائد المجتمعي والأثر الملموس:",
-        "مؤشرات النجاح والأرقام المحققة (KPIs):",
-        "القصة البارزة (حالة واقعية للنجاح):",
-        "الدروس المستفادة والتوصية المستقبلية:"
-    ],
-    "مسار العمليات: تقرير الإنجاز الدوري": [
-        "الأهداف التشغيلية المخطط إنجازها:",
-        "الإنجاز الفعلي بلغة الأرقام:",
-        "الفجوة التشغيلية وأسبابها الجذرية:",
-        "التحديات اللوجستية التي واجهت العمل:",
-        "التدخلات السريعة والقرارات الإدارية المتخذة:"
-    ]
-}
-
-# ==========================================
-# 4. واجهة المستخدم الديناميكية (Dynamic UI)
+# 4. بناء الواجهة الشجرية (UI)
 # ==========================================
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gold_Star_Solid.svg/1024px-Gold_Star_Solid.svg.png", width=50)
-    st.header("إعدادات النظام السيادي")
-    api_key_input = st.text_input("مفتاح المنصة (API Key):", type="password")
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gold_Star_Solid.svg/1024px-Gold_Star_Solid.svg.png", width=60)
+    st.header("إدارة المسارات")
+    # الشجرة: اختيار المسار ثم التقرير
+    pillar = st.selectbox("1. حدد المسار الاستراتيجي:", list(reports_tree.keys()))
+    report_type = st.selectbox("2. حدد نوع الوثيقة:", list(reports_tree[pillar].keys()))
     st.markdown("---")
-    selected_report = st.radio("حدد المسار الاستراتيجي:", list(reports_database.keys()))
+    st.caption("منصة المنصور الاستراتيجية V2.0")
 
 st.title("المنصور الاستراتيجية")
-st.markdown(f"**غرفة الاستنطاق | {selected_report}**")
-st.markdown("أدخل المعطيات بدقة، وسيتولى المحرك صياغة الوثيقة التنفيذية.")
+st.subheader(f"غرفة الاستنطاق: {report_type}")
 st.markdown("---")
 
-# توليد الأسئلة برمجياً بناءً على اختيار العميل
-answers_dict = {}
-for i, question in enumerate(reports_database[selected_report]):
-    if "مسببات" in question or "التوجيهات" in question or "القصة" in question or "الفجوة" in question:
-        answers_dict[question] = st.text_area(f"{i+1}. {question}")
-    else:
-        answers_dict[question] = st.text_input(f"{i+1}. {question}")
+# توليد حقول الأسئلة بناءً على الاختيار الشجري
+answers = {}
+questions = reports_tree[pillar][report_type]
+
+# توزيع الأسئلة في أعمدة لتقليل التشتت
+col1, col2 = st.columns(2)
+for i, q in enumerate(questions):
+    with col1 if i % 2 == 0 else col2:
+        if "مسببات" in q or "التوجيهات" in q or "الأثر" in q or "الدروس" in q:
+            answers[q] = st.text_area(f"{i+1}. {q}", height=100)
+        else:
+            answers[q] = st.text_input(f"{i+1}. {q}")
 
 st.markdown("---")
 
 # ==========================================
-# 5. منطق التوليد الموجه (Contextual Generation)
+# 5. محرك التوليد (The Secret Engine)
 # ==========================================
-if st.button("توليد التقرير السيادي", use_container_width=True):
-    if not api_key_input:
-        st.error("خطأ تنفيذي: المنصة تتطلب إدراج المفتاح السري (API Key).")
-    elif not any(answers_dict.values()):
-        st.warning("تنبيه: لا يمكن توليد تقرير من فراغ، أجب عن معطى واحد على الأقل.")
-    else:
-        with st.spinner("جاري معالجة البيانات وصياغة الوثيقة..."):
-            try:
-                formatted_answers = "\n".join([f"- {k} {v}" for k, v in answers_dict.items() if v])
-                
-                # توجيه المحرك
-                genai.configure(api_key=api_key_input)
+if st.button("توليد واعتِماد الوثيقة السيادية"):
+    # محاولة جلب المفتاح من الخزنة السرية
+    try:
+        api_key = st.secrets["GEMINI_API_KEY"]
+        if not any(answers.values()):
+            st.warning("تنبيه: يرجى تقديم بيانات استقصائية ليتمكن المحرك من التحليل.")
+        else:
+            with st.spinner("جاري صهر البيانات في القالب السيادي..."):
+                genai.configure(api_key=api_key)
                 model = genai.GenerativeModel('gemini-1.5-pro')
                 
-                system_prompt = f"""
-                أنت مستشار تنفيذي بمنصة 'المنصور الاستراتيجية'. 
-                المطلوب صياغة '{selected_report}' فخم، صارم، ومباشر.
-                استخدم لغة الأرقام، وتجنب الحشو. نظم التقرير في فقرات واضحة ومهنية تعكس الجدية والسيادة.
-                المعطيات:
-                {formatted_answers}
+                context = "\n".join([f"- {k}: {v}" for k, v in answers.items() if v])
+                prompt = f"""
+                بصفتك مستشاراً تنفيذياً خبيراً، صغ {report_type} بأسلوب سيادي، فخم، ومقتضب.
+                استخدم لغة الأرقام والنتائج فقط. تجنب العبارات الإنشائية. 
+                نظم الوثيقة في أقسام احترافية واضحة.
+                البيانات المستخلصة:
+                {context}
                 """
                 
-                response = model.generate_content(system_prompt)
-                final_report = response.text
+                response = model.generate_content(prompt)
+                report_text = response.text
                 
-                st.success("تم الاعتماد والتوليد.")
-                st.info(final_report)
+                st.success("تم التوليد بنجاح.")
+                st.info(report_text)
                 
-                # تجهيز ملف التحميل
-                docx_file = create_word_doc(final_report, selected_report)
+                # تحميل الملف
+                file_data = create_docx(report_text, report_type)
                 st.download_button(
                     label="تحميل الوثيقة الرسمية (Word)",
-                    data=docx_file,
-                    file_name=f"{selected_report.replace(' ', '_').replace(':', '')}.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    use_container_width=True
+                    data=file_data,
+                    file_name=f"{report_type.replace(' ', '_')}.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
-            except Exception as e:
-                st.error(f"انقطاع في الاتصال بالمحرك: {e}")
+    except KeyError:
+        st.error("خطأ في النظام: لم يتم العثور على مفتاح API في خزنة الأسرار (Secrets).")
+    except Exception as e:
+        st.error(f"فشل في الاتصال بالمحرك الذكي: {e}")
