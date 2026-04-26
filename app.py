@@ -1,3 +1,4 @@
+
 import streamlit as st
 import google.generativeai as genai
 from docx import Document
@@ -7,21 +8,20 @@ import datetime
 import uuid
 
 # ==========================================
-# 1. إعدادات المنصة والهوية البصرية
+# 1. إعدادات المنصة والهوية البصرية (تصحيح الألوان)
 # ==========================================
 st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
 
-# بصمة الجهاز والأرصدة والأكواد (نظام حقيقي)
 if 'device_id' not in st.session_state: st.session_state.device_id = str(uuid.getnode())
 if 'user_balance' not in st.session_state: st.session_state.user_balance = 0
-if 'valid_codes' not in st.session_state: st.session_state.valid_codes = {"MANSOUR_VIP_2026": 100} # كود ماستر للتجربة
+if 'valid_codes' not in st.session_state: st.session_state.valid_codes = {"MANSOUR_VIP_2026": 100}
 
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
     #MainMenu, footer, header {visibility: hidden;}
     
-    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 60px; }
+    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 70px; }
     
     h1, h2, h3, h4, p, span, div, label, li { 
         text-align: right !important; direction: rtl !important; color: #0a192f !important;
@@ -32,14 +32,6 @@ st.markdown("""
         background-color: #ffffff !important; border: 1px solid #dcdde1 !important; border-radius: 8px !important;
     }
     
-    /* أزرار الواجهة العادية */
-    .stButton > button { 
-        background-color: #0a192f !important; color: #d4af37 !important; 
-        font-weight: 700 !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important;
-        border: 1px solid #d4af37 !important;
-    }
-    .stButton > button:hover { background-color: #d4af37 !important; color: #0a192f !important; }
-    
     .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #0a192f; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-right: 5px solid #d4af37; }
     
     .whatsapp-btn-small {
@@ -48,40 +40,58 @@ st.markdown("""
     }
     
     /* ========================================= */
-    /* إصلاح شريط التنقل السفلي للأزرار */
+    /* إصلاح ألوان الأزرار العامة والتنقل السفلي */
     /* ========================================= */
+    
+    /* الأزرار العادية داخل الصفحة */
+    .stButton > button { 
+        background-color: #0a192f !important; 
+        border: 1px solid #d4af37 !important;
+        border-radius: 8px !important; width: 100% !important; padding: 12px !important;
+    }
+    .stButton > button p, .stButton > button span {
+        color: #ffffff !important; /* خط أبيض واضح جداً على الكحلي */
+        font-weight: 700 !important;
+    }
+    .stButton > button:hover, .stButton > button:active { 
+        background-color: #d4af37 !important; /* يتحول لذهبي عند الضغط */
+    }
+    .stButton > button:hover p, .stButton > button:active p,
+    .stButton > button:hover span, .stButton > button:active span {
+        color: #000000 !important; /* خط أسود فاحم على الذهبي */
+    }
+
+    /* الشريط السفلي الثابت (أفقي دائماً) */
     div[data-testid="stHorizontalBlock"]:last-of-type {
         position: fixed; bottom: 0; left: 0; width: 100vw;
-        background-color: #ffffff; z-index: 99999;
-        padding: 10px; box-shadow: 0px -3px 15px rgba(0, 0, 0, 0.1);
-        border-top: 2px solid #d4af37;
+        background-color: #0a192f !important; /* خلفية الشريط كحلي */
+        z-index: 99999;
+        padding: 10px 5px; box-shadow: 0px -5px 15px rgba(0, 0, 0, 0.2);
+        border-top: 3px solid #d4af37;
         flex-wrap: nowrap !important; justify-content: space-between !important;
         gap: 5px !important; margin: 0 !important;
     }
-    
     div[data-testid="stHorizontalBlock"]:last-of-type > div {
         min-width: 0 !important; width: 33.33% !important;
     }
-    
-    /* جعل أزرار التنقل السفلية فاتحة بخط داكن وواضح */
     div[data-testid="stHorizontalBlock"]:last-of-type button {
         height: 45px !important;
-        background-color: #f4f6f9 !important;
-        border: 1px solid #dcdde1 !important;
+        background-color: transparent !important;
+        border: 1px solid #d4af37 !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button p {
-        color: #0a192f !important; /* لون النص كحلي واضح */
+        color: #ffffff !important; /* أبيض ناصع قبل الضغط */
         font-weight: bold !important;
         font-size: 14px !important;
         margin: 0 !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button:hover, 
     div[data-testid="stHorizontalBlock"]:last-of-type button:active {
-        background-color: #0a192f !important;
+        background-color: #d4af37 !important; /* ذهبي عند الضغط */
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button:hover p, 
     div[data-testid="stHorizontalBlock"]:last-of-type button:active p {
-        color: #d4af37 !important; /* يتحول لذهبي عند الضغط */
+        color: #000000 !important; /* أسود بارز عند الضغط */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -269,350 +279,4 @@ methodology_db = {
             ("جاهزية الأنظمة والبرمجيات (Software):", "مثال: تم شراء الرخص ولكن لم يتم التفعيل"),
             ("كفاءة الكادر البشري للتحول:", "مثال: 60% من الطاقم يحتاج دورات مكثفة في الإكسل والأنظمة"),
             ("الاستقرار المالي لدعم المشروع:", "مثال: الميزانية مرصودة بالكامل ومودعة في الحساب"),
-            ("دعم وقناعة الإدارة العليا:", "مثال: دعم كامل ووجود قرار إداري ملزم"),
-            ("مقاومة التغيير لدى الموظفين:", "مثال: وجود تخوف من الاستغناء عن بعض الوظائف الورقية"),
-            ("جاهزية اللوائح والأدلة الإجرائية:", "مثال: اللوائح القديمة لا تدعم التوقيع الإلكتروني ويجب تعديلها"),
-            ("تحليل المخاطر المصاحبة للتحول:", "مثال: توقف العمل المؤقت أثناء نقل البيانات القديمة"),
-            ("قرار الجاهزية:", "مثال: المؤسسة جاهزة بنسبة 60%، يجب تأجيل الإطلاق لشهرين للتدريب")
-        ]
-    },
-    "مسار العمليات والإنتاجية (Lean)": {
-        "تقرير الإنجاز الدوري (أسبوعي/شهري)": [
-            ("المستهدفات التشغيلية المعتمدة:", "مثال: حفر 500 متر من الأساسات"),
-            ("معدل الإنجاز الفعلي:", "مثال: إنجاز 450 متراً (90%)"),
-            ("تحليل مسببات الهدر الزمني:", "مثال: توقف 6 ساعات لانقطاع الديزل"),
-            ("كفاءة استهلاك الموازنة:", "مثال: صرف 100% مع وفر في النقل"),
-            ("مستوى جودة المخرجات:", "مثال: مطابقة للمخططات وتم استلامها"),
-            ("العوائق الإدارية (البيروقراطية):", "مثال: تأخر اعتماد مستخلص المقاول"),
-            ("تقييم أداء فريق العمل:", "مثال: إنتاجية جيدة وتحتاج مظلات شمسية"),
-            ("تحديثات التوريد لسلاسل الإمداد:", "مثال: وصول دفعة إسمنت تكفي أسبوعاً"),
-            ("الاحتياجات اللوجستية القادمة:", "مثال: ضرورة توفير مضختي مياه إضافية"),
-            ("خطة العمل التصحيحية:", "مثال: إضافة ساعتي عمل لتعويض التأخير")
-        ],
-        "تقرير تحليل الهدر التشغيلي (Waste Analysis)": [
-            ("نوع الهدر المرصود (TIMWOODS):", "مثال: هدر في الحركة والانتظار (Waiting & Motion)"),
-            ("موقع ومكان الهدر في العمليات:", "مثال: قسم اعتماد فواتير المشتريات"),
-            ("حجم الخسارة الزمنية/المالية:", "مثال: ضياع 3 أيام لكل معاملة وتأخر التوريد"),
-            ("السبب الجذري للهدر (5 Whys):", "مثال: اشتراط توقيع المدير العام شخصياً على كل فاتورة"),
-            ("مدى تأثير الهدر على العميل النهائي:", "مثال: تأخر تسليم المشروع النهائي للعميل"),
-            ("الإجراء التحسيني المقترح (Kaizen):", "مثال: تفويض الصلاحيات لمدراء الإدارات بحدود 1000$"),
-            ("تكلفة تنفيذ التحسين:", "مثال: لا يوجد تكلفة، فقط تعديل لائحة الصلاحيات"),
-            ("مقاومة التغيير المتوقعة:", "مثال: قلق الإدارة المالية من فقدان السيطرة"),
-            ("المدة اللازمة لتطبيق الحل:", "مثال: أسبوع واحد لإصدار التعميم الجديد"),
-            ("النتيجة المتوقعة بعد التحسين:", "مثال: تقليص زمن اعتماد الفواتير من 3 أيام إلى ساعتين")
-        ],
-        "تقرير تقييم أداء الموردين والشركاء": [
-            ("اسم المورد أو الشريك:", "مثال: شركة الأفق لاستيراد المعدات"),
-            ("الالتزام بمواعيد التسليم (Delivery):", "مثال: تأخير متكرر بمعدل 4 أيام لكل طلبية"),
-            ("مطابقة الجودة للمواصفات (Quality):", "مثال: جودة ممتازة ومطابقة للمواصفات بنسبة 100%"),
-            ("التنافسية ومرونة الأسعار (Cost):", "مثال: الأسعار أعلى بنسبة 10% من متوسط السوق"),
-            ("مرونة الاستجابة للمتغيرات والطوارئ:", "مثال: استجابة بطيئة لتغيير الكميات بعد التعاقد"),
-            ("الالتزام بخدمات ما بعد البيع والضمان:", "مثال: صيانة دورية ممتازة وتجاوب سريع مع الأعطال"),
-            ("الوضع المالي والقانوني للمورد:", "مثال: شركة مستقرة ولديها سجل ضريبي سليم"),
-            ("سجل المخالفات أو النزاعات السابقة:", "مثال: لا يوجد أي نزاعات قانونية سابقة"),
-            ("تقييم المخاطر المستقبلية للاعتماد عليه:", "مثال: خطر احتكار السوق من قبله لندرة المعدات"),
-            ("القرار التعاقدي (تجديد/استبعاد):", "مثال: تجديد العقد مع شرط جزائي قاسي للتأخير في التسليم")
-        ],
-        "تقرير إدارة الأزمات والتعافي": [
-            ("وصف الأزمة أو الكارثة الطارئة:", "مثال: اختراق سيبراني لنظام الحسابات وتعطل السيرفر"),
-            ("زمن وتاريخ حدوث الأزمة:", "مثال: الخميس 10 مساءً"),
-            ("الاستجابة الفورية المباشرة (الاحتواء):", "مثال: فصل الخوادم عن شبكة الإنترنت لمنع تسرب البيانات"),
-            ("حجم الأضرار والخسائر الأولية:", "مثال: فقدان بيانات يوم عمل كامل وتوقف النظام ليومين"),
-            ("تفعيل خطة استمرارية العمل (BCP):", "مثال: الانتقال الفوري للعمل بالدفاتر الورقية مؤقتاً"),
-            ("كفاءة فريق إدارة الأزمات:", "مثال: استجابة فريق الـ IT كانت سريعة جداً"),
-            ("التواصل مع الجهات المعنية (الإعلام/العملاء):", "مثال: إبلاغ العملاء بوجود صيانة دورية لتجنب الذعر"),
-            ("تحليل أسباب الاختراق أو القصور:", "مثال: استخدام أحد الموظفين لكلمة مرور ضعيفة"),
-            ("عملية التعافي واستعادة البيانات (Recovery):", "مثال: استرجاع النسخة الاحتياطية من السحابة بنجاح"),
-            ("الدروس المستفادة والوقاية:", "مثال: فرض المصادقة الثنائية (2FA) على كافة حسابات النظام")
-        ],
-        "تقرير قياس مؤشرات كفاءة الأداء (KPIs)": [
-            ("الإدارة أو القسم محل القياس:", "مثال: قسم خدمة العملاء والدعم الفني"),
-            ("المؤشر الأول (زمن الاستجابة للشكاوى):", "مثال: المستهدف 15 دقيقة، المحقق 22 دقيقة (انحراف سلبي)"),
-            ("المؤشر الثاني (نسبة إغلاق التذاكر):", "مثال: المستهدف 95%، المحقق 98% (أداء ممتاز)"),
-            ("المؤشر الثالث (تكلفة اكتساب العميل CAC):", "مثال: المستهدف 5$، المحقق 4$ (وفر مالي ممتاز)"),
-            ("تحليل أسباب تدني أي مؤشر:", "مثال: بطء الاستجابة سببه نقص عدد الموظفين في النوبة الليلية"),
-            ("أبرز المنجزات الاستثنائية للقسم:", "مثال: تقليل عدد الشكاوى المكررة بفضل تحديث قائمة الأسئلة الشائعة"),
-            ("تقييم أداء رئيس القسم والموظفين:", "مثال: أداء قيادي متميز في توزيع المهام والتحفيز"),
-            ("مقارنة الأداء بالشهر المماثل العام الماضي:", "مثال: تحسن في الأداء الكلي بنسبة 30%"),
-            ("تحديث مستهدفات الشهر القادم:", "مثال: تقليص زمن الاستجابة إلى 10 دقائق كهدف جديد"),
-            ("القرارات التحفيزية أو التصحيحية:", "مثال: صرف مكافأة تميز لفريق إغلاق التذاكر، وتعيين موظف ليلي")
-        ]
-    },
-    "مسار العلاقات وصورة المؤسسة (PR & Visibility)": {
-        "تقرير التغطية الإعلامية وتحليل السمعة": [
-            ("الرسالة الاستراتيجية المستهدفة:", "مثال: إبراز دور المؤسسة في الإغاثة الطارئة"),
-            ("إحصائيات الوصول الكلي (Reach):", "مثال: مليون ظهور وبث في قناتين فضائيتين"),
-            ("تحليل نبرة الجمهور (Sentiment):", "مثال: 85% ردود إيجابية، 15% تساؤلات"),
-            ("قائمة الشركاء والمؤثرين المساهمين:", "مثال: مشاركة من 5 ناشطين مجتمعيين"),
-            ("جودة الأصول والمحتوى الرقمي:", "مثال: التصوير الجوي ممتاز والصوتيات ضعيفة"),
-            ("مدى وصول الرسائل الجوهرية:", "مثال: الجمهور أدرك أن التمويل ذاتي من المؤسسة"),
-            ("كفاءة الإنفاق الإعلامي:", "مثال: تكلفة شبه مجانية لاعتماد النشر العضوي"),
-            ("الفجوات المرصودة في التواصل:", "مثال: ضعف تغطية الحدث في منصة تويتر"),
-            ("التهديدات المرصودة للسمعة:", "مثال: تعليقات سلبية عن تأخر التدخل ببعض المناطق"),
-            ("التوصية الاستراتيجية للعلاقات:", "مثال: إطلاق حملة توضح معايير الاستهداف")
-        ],
-        "تقرير إدارة الفعاليات والبروتوكول": [
-            ("نوع الفعالية والهدف منها:", "مثال: مؤتمر سنوي لإطلاق استراتيجية 2027"),
-            ("مستوى التنظيم اللوجستي (القاعات/الضيافة):", "مثال: تنظيم ممتاز واستقبال احترافي لكبار الضيوف"),
-            ("دقة تطبيق بروتوكول الجلوس والتشريفات:", "مثال: حصل خطأ بسيط في جلوس وكيل الوزارة"),
-            ("كفاءة إدارة الوقت وجدول الأعمال:", "مثال: تأخر بدء الفعالية لمدة 45 دقيقة بانتظار الراعي"),
-            ("جودة المادة العلمية والمتحدثين:", "مثال: المتحدثون كانوا متمكنين ولكن العروض كانت طويلة"),
-            ("التغطية الإعلامية الداخلية للحدث:", "مثال: تم بث الحدث المباشر بدقة عالية دون تقطيع"),
-            ("حجم الحضور وتفاعل المشاركين:", "مثال: حضور 200 شخص (90% من المدعوين)، تفاعل ممتاز في الأسئلة"),
-            ("إدارة الأزمات والمشاكل التقنية بالفعالية:", "مثال: تعطل المايكروفون وتم استبداله في 10 ثوانٍ"),
-            ("التقييم المالي والتكلفة النهائية:", "مثال: الفعالية ضمن الميزانية ولم نتجاوز السقف المحدد"),
-            ("الدروس المستفادة للفعاليات القادمة:", "مثال: التأكيد المسبق على كبار الضيوف بالموعد بدقة لتجنب التأخير")
-        ],
-        "تقرير المسؤولية المجتمعية (CSR)": [
-            ("اسم المبادرة المجتمعية:", "مثال: مبادرة 'شتاء دافئ' لكسوة الأيتام"),
-            ("الفئة المستفيدة والموقع الجغرافي:", "مثال: 500 يتيم في مخيمات النزوح بمارب"),
-            ("حجم المساهمة المالية/العينية للمؤسسة:", "مثال: توزيع بطانيات وملابس بقيمة 15,000 دولار"),
-            ("الأثر المجتمعي المباشر:", "مثال: حماية الأطفال من موجات البرد والأمراض المصاحبة"),
-            ("مستوى التفاعل والمشاركة التطوعية للموظفين:", "مثال: شارك 20 موظفاً في عملية التغليف والتوزيع طوعياً"),
-            ("الشركاء المحليون في المبادرة:", "مثال: التنسيق مع الوحدة التنفيذية للنازحين لتحديد الأسماء"),
-            ("التغطية الإعلامية وصورة المؤسسة الإنسانية:", "مثال: تغطية واسعة عكست الوجه الإنساني للشركة بنجاح"),
-            ("ردود أفعال المجتمع والجهات الحكومية:", "مثال: إشادة رسمية من محافظ المحافظة بجهود المؤسسة"),
-            ("مدى ارتباط المبادرة بأهداف التنمية المستدامة (SDGs):", "مثال: تخدم الهدف الأول 'القضاء على الفقر'"),
-            ("اقتراح للمبادرة المجتمعية القادمة:", "مثال: رعاية بطولة رياضية للشباب لتعزيز الصحة والاندماج")
-        ],
-        "تقرير إدارة الأزمات الإعلامية": [
-            ("طبيعة الأزمة أو الشائعة المنتشرة:", "مثال: إشاعة بوجود مواد منتهية في السلال الغذائية الموزعة"),
-            ("منصة انطلاق الأزمة وحجم الانتشار:", "مثال: بدأت بجروب واتساب ثم انتقلت لفيسبوك محققة 5000 مشاركة"),
-            ("سرعة استجابة قسم العلاقات العامة (SLA):", "مثال: تم رصد الشائعة بعد 3 ساعات من إطلاقها (استجابة جيدة)"),
-            ("الإجراء الفوري لاحتواء الأزمة:", "مثال: إصدار بيان رسمي وتصوير فيديو مباشر من داخل المخازن"),
-            ("رسالة الرد الجوهرية (Counter-Message):", "مثال: إثبات صحة وتاريخ المواد وعرض شهادات الفحص المخبري"),
-            ("دور الشركاء والجهات الرسمية في الدعم:", "مثال: تصريح من مكتب الصحة يؤكد سلامة الإجراءات والمواد"),
-            ("تحليل نبرة الجمهور بعد التوضيح:", "مثال: تحول 90% من الهجوم إلى دعم ومساندة لشفافية المؤسسة"),
-            ("الأضرار المتبقية على السمعة المؤسسية:", "مثال: بعض الصفحات الوهمية لا زالت تروج للإشاعة (ضرر محدود)"),
-            ("تقييم أداء المتحدث الرسمي للمؤسسة:", "مثال: أداء واثق ومقنع ولم ينجر للاستفزاز"),
-            ("الخطة الوقائية لمنع تكرار الأزمة:", "مثال: طباعة تواريخ الصلاحية بخط بارز على الغلاف الخارجي وتوثيقها مسبقاً")
-        ],
-        "تقرير قياس العائد من الشراكات الاستراتيجية": [
-            ("الجهة الشريكة وطبيعة الشراكة:", "مثال: مذكرة تفاهم مع جامعة تعز لتدريب الخريجين"),
-            ("الأهداف المحددة في اتفاقية الشراكة:", "مثال: استيعاب 50 متدرباً وتوفير القاعات مجاناً للمؤسسة"),
-            ("حجم المنافع العائدة للمؤسسة (كمياً/نوعياً):", "مثال: توفير 3000$ من إيجار القاعات، ورفد المؤسسة بكوادر شابة"),
-            ("التزامات المؤسسة تجاه الشريك (ماذا قدمنا؟):", "مثال: تقديم خبراء لتدريس مساق الإدارة الحديثة في الجامعة"),
-            ("مستوى التنسيق والتواصل الإداري مع الشريك:", "مثال: تواصل سلس ومباشر عبر ضابط ارتباط مخصص"),
-            ("العوائق أو نقاط الخلاف في التنفيذ:", "مثال: تأخر الجامعة في إرسال كشوفات المتدربين عن الموعد المحدد"),
-            ("التأثير على السمعة والمكانة السوقية:", "مثال: تعزيز صورة المؤسسة كجهة علمية وراعية للشباب"),
-            ("التقييم المالي للشراكة (هل هي مربحة؟):", "مثال: الشراكة حققت وفراً مالياً ودعمت الموارد البشرية بشكل ممتاز"),
-            ("مستوى التزام الشريك بسرية المعلومات:", "مثال: التزام تام ببنود اتفاقية عدم الإفصاح (NDA)"),
-            ("توصية الإدارة العليا للتعاقد:", "مثال: تجديد الشراكة لمدة 3 سنوات إضافية وتوسيع النطاق ليشمل البحث العلمي")
-        ]
-    }
-}
-
-# ==========================================
-# 3. إدارة حالة الجلسة والتنقل (Session State)
-# ==========================================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
-if 'current_page' not in st.session_state: st.session_state.current_page = "login"
-if 'extra_fields' not in st.session_state: st.session_state.extra_fields = []
-
-def change_page(page_name):
-    st.session_state.current_page = page_name
-    st.rerun()
-
-# ==========================================
-# 4. بناء الصفحات (Pages Functions)
-# ==========================================
-
-def login_page():
-    st.markdown('<div class="card-box" style="margin-top: 50px;">', unsafe_allow_html=True)
-    st.title("🔐 دخول المنصة السيادية")
-    st.info(f"الجهاز مسجل ومحمي بالمعرف: {st.session_state.device_id[-6:]}")
-    
-    user_id = st.text_input("أدخل رقم الجوال أو البريد الإلكتروني للمتابعة:")
-    if st.button("تسجيل الدخول", use_container_width=True):
-        if user_id:
-            st.session_state.logged_in = True
-            st.session_state.user_id = user_id
-            st.session_state.current_page = "platform"
-            st.rerun()
-        else:
-            st.warning("يرجى إدخال البيانات للمتابعة.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-def platform_page():
-    st.title("المنصور الاستراتيجية")
-    st.markdown(f"**رصيدك الحالي:** {st.session_state.user_balance} تقارير | **المستخدم:** {st.session_state.user_id}")
-    st.markdown("---")
-    
-    st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
-    c1, c2 = st.columns(2)
-    with c1:
-        org_name = st.text_input("الجهة المصدرة للوثيقة:")
-        proj_name = st.text_input("اسم المشروع / المهمة:")
-    with c2:
-        loc_name = st.text_input("النطاق الجغرافي:")
-        author_name = st.text_input("إعداد (الاسم والمنصب):")
-
-    st.markdown("---")
-    
-    st.markdown("### 🔍 ثانياً: الاستنطاق المنهجي (العالمي)")
-    pillar = st.selectbox("1. حدد المسار الاستراتيجي الرئيسي:", list(methodology_db.keys()))
-    report_type = st.selectbox("2. حدد التقرير التخصصي (الفرعي):", list(methodology_db[pillar].keys()))
-    
-    st.success(f"النموذج المعتمد حالياً: {report_type}")
-    
-    answers = {}
-    for i, (q_text, q_hint) in enumerate(methodology_db[pillar][report_type]):
-        answers[q_text] = st.text_area(f"{i+1}. {q_text}", placeholder=f"إرشاد: {q_hint}")
-
-    st.markdown("#### ➕ إضافات مخصصة (حقول العميل)")
-    if st.button("إضافة حقل/سؤال إضافي خاص بك"):
-        st.session_state.extra_fields.append(len(st.session_state.extra_fields))
-        st.rerun()
-    
-    extra_answers = {}
-    for i in st.session_state.extra_fields:
-        et = st.text_input(f"عنوان الحقل الإضافي {i+1}:", key=f"t_{i}")
-        ea = st.text_area(f"إجابة الحقل الإضافي {i+1}:", key=f"a_{i}")
-        if et and ea:
-            extra_answers[et] = ea
-
-    st.markdown("---")
-    
-    st.markdown("### 📁 ثالثاً: الشواهد والاعتمادات")
-    uploaded_files = st.file_uploader("ارفع صور أو وثائق ميدانية (PDF/JPG):", accept_multiple_files=True)
-    links_str = st.text_input("روابط المراجع (Google Drive / DropBox):")
-    final_recs = st.text_area("التوصيات والمقترحات الختامية للإدارة العليا:")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("اعتماد وتوليد الوثيقة السيادية"):
-        if st.session_state.user_balance <= 0:
-            st.error("⚠️ رصيدك (0). يرجى التوجه لصفحة 'الباقات' لشحن الرصيد أولاً.")
-        elif not (org_name and proj_name and author_name):
-            st.error("⚠️ يرجى استكمال بيانات غلاف الوثيقة الإدارية في الأعلى.")
-        else:
-            try:
-                genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY_HERE"))
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-pro-latest')
-                except:
-                    model = genai.GenerativeModel('gemini-pro')
-                
-                data_feed = "\n".join([f"- {k} {v}" for k, v in answers.items() if v])
-                if extra_answers:
-                    data_feed += "\n\nمعطيات إضافية مخصصة:\n" + "\n".join([f"- {k} {v}" for k, v in extra_answers.items()])
-                
-                current_date = datetime.date.today().strftime("%Y-%m-%d")
-                
-                prompt = f"""
-                بصفتك مستشاراً تنفيذياً عالمياً، صغ تقرير '{report_type}' لجهة '{org_name}' حول مشروع '{proj_name}'.
-                الموقع: {loc_name}. إعداد: {author_name}. التاريخ: {current_date}.
-                المنهجية المتبعة: {pillar}.
-                
-                البيانات الميدانية المحللة:
-                {data_feed}
-                
-                التوصيات الاستراتيجية: {final_recs}
-                المرفقات المذكورة: {links_str}
-                
-                التعليمات الإلزامية للذكاء الاصطناعي:
-                1. ابدأ بغلاف التقرير الرسمي.
-                2. صغ ملخصاً تنفيذياً يعطي لمحة سريعة لمتخذ القرار.
-                3. اكتب التحليل بناءً على المعطيات بلغة رصينة، رسمية، مباشرة، تعتمد الأرقام فقط. تجنب الحشو الإنشائي.
-                4. اذكر التوصيات والمرفقات في النهاية بشكل مرتب.
-                """
-                
-                with st.spinner("جاري صهر البيانات وتوليد الوثيقة السيادية..."):
-                    response = model.generate_content(prompt)
-                    
-                    # خصم الرصيد بعد النجاح فقط
-                    st.session_state.user_balance -= 1 
-                    st.success(f"تم الاعتماد والمطابقة بنجاح. تم خصم تقرير من رصيدك (المتبقي: {st.session_state.user_balance}).")
-                    st.info(response.text)
-                    
-                    doc = Document()
-                    doc.add_heading(f"{org_name} | {report_type}", 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
-                    doc.add_paragraph(f"المشروع: {proj_name}\nالنطاق الجغرافي: {loc_name}\nإعداد: {author_name}\nالتاريخ: {current_date}").alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                    for line in response.text.split('\n'):
-                        if line.strip():
-                            p = doc.add_paragraph(line.strip())
-                            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                    bio = io.BytesIO()
-                    doc.save(bio)
-                    st.download_button("تحميل الوثيقة المعتمدة (Word)", bio.getvalue(), file_name=f"Report_{proj_name}.docx")
-            except Exception as e:
-                st.error(f"عطل تقني في محرك الصياغة: {e}")
-
-def packages_page():
-    st.title("💳 باقات الاشتراك وتفعيل الرصيد")
-    
-    st.markdown("""
-    <div class="card-box">
-        <h3 style="color:#0a192f;">باقة المنجز (3 تقارير)</h3>
-        <p>تناسب المهام السريعة والتقارير الفردية.<br><b style="color:#d4af37;">السعر: 10,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة المنجز بقيمة 10,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
-    </div>
-    <div class="card-box">
-        <h3 style="color:#0a192f;">باقة الخبير (10 تقارير)</h3>
-        <p>الخيار الأفضل لمديري المشاريع والفرق الميدانية.<br><b style="color:#d4af37;">السعر: 25,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة الخبير بقيمة 25,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
-    </div>
-    <div class="card-box">
-        <h3 style="color:#0a192f;">الباقة السيادية المؤسسية (مفتوح)</h3>
-        <p>للمنظمات، مع إضافة مسارات مخصصة ودعم فني على مدار الساعة.<br><b style="color:#d4af37;">السعر: تواصل معنا لتحديد العرض</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاستفسار عن الباقة السيادية المؤسسية المفتوحة" class="whatsapp-btn-small" target="_blank">📱 تواصل معنا لطلب العرض</a>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    st.subheader("تفعيل باقة جديدة")
-    act_code = st.text_input("أدخل كود الشحن الذي استلمته من الإدارة:")
-    if st.button("تفعيل الرصيد"):
-        if act_code in st.session_state.valid_codes:
-            # إضافة الرصيد وحذف الكود لمنع استخدامه مرة أخرى
-            added_reports = st.session_state.valid_codes.pop(act_code)
-            st.session_state.user_balance += added_reports
-            st.success(f"تم الشحن بنجاح! تمت إضافة {added_reports} تقارير. رصيدك الكلي: {st.session_state.user_balance}")
-        else:
-            st.error("الكود غير صحيح أو تم استخدامه مسبقاً. تأكد من الإدارة.")
-
-def admin_page():
-    st.markdown('<div class="card-box">', unsafe_allow_html=True)
-    st.title("🛠️ لوحة تحكم الإدارة (توليد الأكواد)")
-    # التحقق الحقيقي من كلمة السر (يمكنك وضعها في st.secrets لاحقاً)
-    pw = st.text_input("كلمة السر الإدارية:", type="password")
-    
-    # الرمز السري الحقيقي للإدارة (قم بتغييره متى شئت)
-    if pw == "Mansour@2026":
-        st.success("تم تأكيد الهوية. مرحباً بك سعادة المستشار.")
-        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["منجز (3 تقارير)", "خبير (10 تقارير)", "سيادي (100 تقرير)"])
-        
-        if st.button("توليد كود التفعيل"):
-            new_code = f"MS-{uuid.uuid4().hex[:6].upper()}"
-            if "منجز" in pack_type:
-                st.session_state.valid_codes[new_code] = 3
-            elif "خبير" in pack_type:
-                st.session_state.valid_codes[new_code] = 10
-            elif "سيادي" in pack_type:
-                st.session_state.valid_codes[new_code] = 100
-                
-            st.info(f"الكود الجديد الجاهز للعميل: **{new_code}**")
-            st.write("أرسل هذا الكود للعميل بعد استلام الحوالة، ليقوم بإدخاله في صفحة الباقات.")
-    elif pw:
-        st.error("كلمة السر غير صحيحة.")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ==========================================
-# 5. محرك توجيه الصفحات وشريط التنقل السفلي
-# ==========================================
-if st.session_state.current_page == "login":
-    login_page()
-else:
-    # عرض محتوى الصفحة المحددة
-    if st.session_state.current_page == "platform": platform_page()
-    elif st.session_state.current_page == "packages": packages_page()
-    elif st.session_state.current_page == "admin": admin_page()
-
-    # شريط التنقل السفلي الثابت والأفقي (الترتيب الطبيعي)
-    nav1, nav2, nav3 = st.columns(3)
-    with nav1:
-        if st.button("🏠 المنصة"): change_page("platform")
-    with nav2:
-        if st.button("💳 الباقات"): change_page("packages")
-    with nav3:
-        if st.button("🛠️ الإدارة"): change_page("admin")
+            ("دعم وقنا
