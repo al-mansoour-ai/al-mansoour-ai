@@ -1,133 +1,194 @@
 import streamlit as st
-from datetime import datetime
+import google.generativeai as genai
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from io import BytesIO
+import io
 
-# ================== 1. الهوية البصرية السيادية (V35) ==================
-st.set_page_config(page_title="المنصور استراتيجي - V35", layout="wide")
+# ==========================================
+# 1. إعدادات الصفحة والهوية البصرية (Branding)
+# ==========================================
+st.set_page_config(page_title="منصة التقارير السيادية", layout="wide", initial_sidebar_state="expanded")
 
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-    div[data-testid="stToolbar"], #MainMenu, footer, header, .stDeployButton { display: none !important; }
-    .stApp { background-color: #0c0c0c; color: #ffffff; direction: rtl; }
-    .main-box { background: #151515; border: 1.5px solid #d4af37; padding: 35px; border-radius: 15px; box-shadow: 0 10px 50px rgba(0,0,0,0.8); }
-    * { font-family: 'Cairo', sans-serif !important; text-align: right; }
-    .brand-title { color: #d4af37 !important; font-weight: 900; font-size: 2.8rem; text-align: center; margin: 0; }
-    .section-title { color: #d4af37; border-right: 6px solid #d4af37; padding-right: 15px; font-weight: 700; background: #1f1f1f; padding: 10px; margin: 20px 0; border-radius: 0 8px 8px 0; }
-    .q-label { color: #fbbf24; font-weight: 600; margin-top: 15px; display: block; font-size: 0.95rem; }
+# تخصيص CSS للون الأسود الفخم والذهبي وخط Cairo
+custom_css = """
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
     
-    /* تنسيق التبويبات الذهبي */
-    .stTabs [data-baseweb="tab-list"] { gap: 8px; }
-    .stTabs [data-baseweb="tab"] { 
-        background-color: #1a1a1a; border: 1px solid #333; color: #aaa; border-radius: 10px 10px 0 0; 
-        padding: 12px 25px; font-weight: 600;
+    /* الإعدادات الأساسية والاتجاه */
+    html, body, [class*="st-"] {
+        font-family: 'Cairo', sans-serif !important;
+        direction: rtl;
+        text-align: right;
+        background-color: #0c0c0c !important;
+        color: #ffffff !important;
     }
-    .stTabs [aria-selected="true"] { background-color: #d4af37 !important; color: #000 !important; font-weight: 900 !important; }
     
-    .btn-gen button { 
-        background: linear-gradient(90deg, #d4af37, #aa8a2e) !important; 
-        color: #000 !important; font-weight: 900; height: 65px; font-size: 1.3rem; width: 100%; border-radius: 12px; border: none;
+    /* العناوين باللون الذهبي */
+    h1, h2, h3 {
+        color: #D4AF37 !important;
+        font-weight: bold;
     }
-    textarea { background-color: #222 !important; color: white !important; border: 1px solid #444 !important; border-radius: 8px !important; }
-    </style>
-""", unsafe_allow_html=True)
+    
+    /* تصميم حقول الإدخال */
+    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
+        background-color: #1a1a1a !important;
+        color: #ffffff !important;
+        border: 1px solid #D4AF37 !important;
+        border-radius: 4px;
+    }
+    
+    /* تصميم الأزرار التنفيذية */
+    .stButton>button {
+        background-color: #D4AF37 !important;
+        color: #0c0c0c !important;
+        font-weight: 700 !important;
+        font-family: 'Cairo', sans-serif !important;
+        border: none !important;
+        padding: 10px 24px !important;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    /* اللوحة الجانبية */
+    [data-testid="stSidebar"] {
+        background-color: #111111 !important;
+        border-left: 2px solid #D4AF37;
+    }
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
 
-# ================== 2. محرك التصدير الماسي ==================
-def generate_royal_report(p_name, rtype, donor, loc, agency, responses):
+# ==========================================
+# 2. دوال المعالجة والمخرجات (Processing & Output)
+# ==========================================
+
+def generate_report(api_key, answers):
+    """دالة إرسال البيانات إلى Gemini واستلام التقرير المصاغ"""
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-1.5-pro') # أو gemini-pro
+    
+    # هندسة الأوامر (Prompt Engineering) المخفية
+    system_prompt = f"""
+    أنت مستشار تنفيذي فائق الاحترافية. مهمتك كتابة 'تقرير نزول ميداني' رصين، صارم، ومباشر بناءً على المعطيات التالية فقط.
+    استخدم لغة الأرقام، وتجنب الحشو والعبارات الإنشائية. صغ التقرير في 4 أقسام رئيسية:
+    1. الملخص التنفيذي والجدول الزمني.
+    2. المطابقة الفنية وكفاءة التشغيل.
+    3. الرقابة المالية وإدارة المخاطر.
+    4. التوصيات والتدخلات العاجلة.
+    
+    المعطيات من المفتش الميداني:
+    {answers}
+    """
+    
+    response = model.generate_content(system_prompt)
+    return response.text
+
+def create_word_doc(text_content):
+    """دالة تحويل النص المولد إلى ملف Word منسق"""
     doc = Document()
-    doc.add_heading(f"تقرير سيادي معتمد: {rtype}", 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    table = doc.add_table(rows=2, cols=2)
-    table.style = 'Table Grid'
-    table.rows[0].cells[0].text = f"المشروع: {p_name}"
-    table.rows[0].cells[1].text = f"الجهة المانحة: {donor}"
-    table.rows[1].cells[0].text = f"الموقع: {loc}"
-    table.rows[1].cells[1].text = f"تاريخ الإصدار: {datetime.now().strftime('%Y-%m-%d')}"
+    # عنوان التقرير
+    title = doc.add_heading('تقرير النزول الميداني - سري وتنفيذي', 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    for q, a in responses.items():
-        doc.add_heading(q, level=1)
-        doc.add_paragraph(a if a else "بيان لم يُدرج").alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    
-    bio = BytesIO()
+    # إضافة النص مع ضبط الاتجاه لليمين
+    for paragraph in text_content.split('\n'):
+        if paragraph.strip():
+            p = doc.add_paragraph(paragraph.strip())
+            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            # ملاحظة: التنسيق المتقدم للخطوط العربية في Word يتطلب إعدادات XML، 
+            # لكن هذا التنسيق يفي بالغرض للنسخة الأولية.
+            
+    # حفظ الملف في الذاكرة لتنزيله
+    bio = io.BytesIO()
     doc.save(bio)
-    bio.seek(0)
-    return bio
+    return bio.getvalue()
 
-# ================== 3. البوابة والدخول ==================
-if "auth" not in st.session_state: st.session_state.auth = False
+# ==========================================
+# 3. واجهة المستخدم (UI Build)
+# ==========================================
 
-if not st.session_state.auth:
-    st.markdown('<div class="main-box"><h1 class="brand-title">المنصور AI</h1>', unsafe_allow_html=True)
-    if st.button("فتح البوابة السيادية"): st.session_state.auth = True; st.rerun()
-    st.stop()
+# اللوحة الجانبية (Sidebar)
+with st.sidebar:
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gold_Star_Solid.svg/1024px-Gold_Star_Solid.svg.png", width=50) # شعار مؤقت
+    st.header("إعدادات النظام")
+    api_key_input = st.text_input("أدخل مفتاح Gemini API:", type="password")
+    st.markdown("---")
+    st.markdown("**مسار العمليات الحالي:**")
+    st.radio("اختر نوع التقرير:", ["تقرير النزول الميداني", "تقرير الامتثال (قريباً)", "تقرير الأثر (قريباً)"])
 
-# ================== 4. الواجهة الكاملة (5 مسارات) ==================
-st.markdown('<div class="main-box">', unsafe_allow_html=True)
-st.markdown('<h1 class="brand-title">المنصور استراتيجي</h1>', unsafe_allow_html=True)
-st.markdown('<p style="text-align:center; color:#d4af37; font-weight:700;">منصة الاستنطاق الاستراتيجي الشاملة | الإصدار الخماسي V35</p>', unsafe_allow_html=True)
+# الواجهة الرئيسية
+st.title("المنصور الاستراتيجية | منصة التقارير السيادية")
+st.markdown("أهلاً بك في غرفة الاستنطاق. أجب عن المعطيات التالية بدقة لبناء وثيقتك التنفيذية.")
+st.markdown("---")
 
-# البيانات المشتركة
-st.markdown('<p class="section-title">📍 البيانات التعريفية الموحدة</p>', unsafe_allow_html=True)
-c1, c2 = st.columns(2)
-p_name = c1.text_input("اسم المشروع")
-donor = c1.text_input("الجهة المانحة")
-loc = c2.text_input("الموقع الميداني")
-agency = c2.text_input("الجهة المنفذة")
+# هيكل المدخلات (The Inputs)
+col1, col2 = st.columns(2)
 
-# نظام المسارات الخمسة (تم الإصلاح)
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🛡️ الرقابة", "🎓 الأثر", "⚙️ العمليات", "📈 الاستراتيجية", "📢 العلاقات"])
+with col1:
+    st.subheader("أولاً: الإطار والجدول الزمني")
+    q1 = st.text_input("1. النطاق الجغرافي والمقاول المنفذ:")
+    q2 = st.text_input("2. نسبة الإنجاز الفعلي مقارنة بالمستهدف (%):")
+    q3 = st.text_area("3. مسببات الانحراف أو التأخير (إن وجدت):")
+    
+    st.subheader("ثالثاً: الرقابة المالية")
+    q6 = st.text_area("6. مظاهر الهدر المالي أو تكدس العمالة والموارد:")
+    q7 = st.text_input("7. النفقات غير المجدولة أو المطالبات الإضافية:")
 
-final_responses = {}
-report_type_label = ""
+with col2:
+    st.subheader("ثانياً: المطابقة الفنية")
+    q4 = st.text_area("4. حالات عدم المطابقة الفنية مع كراسة الشروط:")
+    q5 = st.text_input("5. تقييم كفاءة المواد والمعدات في الموقع:")
+    
+    st.subheader("رابعاً: المخاطر والقرارات")
+    q8 = st.text_input("8. مستوى الالتزام ببروتوكولات السلامة (HSE):")
+    q9 = st.text_input("9. المخاطر الكامنة (أمنية، بيئية، تشغيلية):")
+    q10 = st.text_area("10. التوجيهات التصحيحية العاجلة المطلوبة:")
 
-with tab1:
-    st.markdown('<p class="section-title">مسار الرقابة والامتثال (Field Visit)</p>', unsafe_allow_html=True)
-    q_audit = ["1. نسبة الإنجاز الفعلي مقابل المخطط؟", "2. مخالفات المواصفات الفنية المرصودة؟", "3. رصد أي مظاهر لهدر الموارد؟", "4. الخطر المحدق الذي يهدد استقرار العمل؟", "5. التوصية السيادية (استمرار، تعليق، إنذار)؟"]
-    for i, q in enumerate(q_audit):
-        st.markdown(f'<p class="q-label">{q}</p>', unsafe_allow_html=True)
-        final_responses[q] = st.text_area("", key=f"aud_{i}", height=70, label_visibility="collapsed")
-    report_type_label = "رقابة وامتثال - نزول ميداني"
+# تجميع الإجابات
+answers_dict = {
+    "النطاق": q1, "نسبة الإنجاز": q2, "مسببات التأخير": q3,
+    "عدم المطابقة": q4, "الكفاءة": q5, "الهدر المالي": q6,
+    "النفقات الإضافية": q7, "السلامة": q8, "المخاطر": q9,
+    "التوجيهات العاجلة": q10
+}
 
-with tab2:
-    st.markdown('<p class="section-title">مسار الأثر (Impact - Kirkpatrick)</p>', unsafe_allow_html=True)
-    q_impact = ["1. الفارق المعرفي المرصود بعد التدخل؟", "2. المهارة المكتسبة المحددة التي تمت ممارستها؟", "3. دليل تطبيق المهارة في بيئة العمل؟", "4. المعوقات الميدانية لنقل أثر التدريب؟"]
-    for i, q in enumerate(q_impact):
-        st.markdown(f'<p class="q-label">{q}</p>', unsafe_allow_html=True)
-        final_responses[q] = st.text_area("", key=f"imp_{i}", height=70, label_visibility="collapsed")
-    report_type_label = "قياس أثر - نموذج كيركباتريك"
+st.markdown("---")
 
-with tab3:
-    st.markdown('<p class="section-title">مسار العمليات (Operational Performance)</p>', unsafe_allow_html=True)
-    q_ops = ["1. القرار الجوهري المتخذ في الاجتماع؟", "2. المسؤول المباشر عن التنفيذ؟", "3. الموعد النهائي القاطع للإنجاز؟", "4. الموارد اللوجستية المطلوبة فوراً؟"]
-    for i, q in enumerate(q_ops):
-        st.markdown(f'<p class="q-label">{q}</p>', unsafe_allow_html=True)
-        final_responses[q] = st.text_area("", key=f"ops_{i}", height=70, label_visibility="collapsed")
-    report_type_label = "عمليات وتشغيل - محضر قيادي"
-
-with tab4:
-    st.markdown('<p class="section-title">مسار الاستراتيجية (Strategic Risks)</p>', unsafe_allow_html=True)
-    q_strat = ["1. التهديد المحتمل للأهداف الكبرى؟", "2. كلفة الخسارة المالية المباشرة المتوقعة؟", "3. الخطة البديلة (B) الجاهزة للتفعيل؟", "4. مستوى الأولوية (حرج، متوسط، منخفض)؟"]
-    for i, q in enumerate(q_strat):
-        st.markdown(f'<p class="q-label">{q}</p>', unsafe_allow_html=True)
-        final_responses[q] = st.text_area("", key=f"str_{i}", height=70, label_visibility="collapsed")
-    report_type_label = "استراتيجية - تحليل مخاطر"
-
-with tab5:
-    st.markdown('<p class="section-title">مسار العلاقات والظهور (Visibility)</p>', unsafe_allow_html=True)
-    q_vis = ["1. الرسالة الاستراتيجية الثلاثية الموجهة؟", "2. أقوى اقتباس قيادي من الحدث؟", "3. صورة الإنجاز المراد ترسيخها لدى المانح؟", "4. الجمهور المستهدف الرئيسي؟"]
-    for i, q in enumerate(q_vis):
-        st.markdown(f'<p class="q-label">{q}</p>', unsafe_allow_html=True)
-        final_responses[q] = st.text_area("", key=f"vis_{i}", height=70, label_visibility="collapsed")
-    report_type_label = "علاقات عامة - تقرير إعلامي"
-
-st.markdown("<br>", unsafe_allow_html=True)
-if st.button("🚀 توليد التقرير السيادي النهائي"):
-    if p_name and any(final_responses.values()):
-        word_file = generate_royal_report(p_name, report_type_label, donor, loc, agency, final_responses)
-        st.download_button("📥 تحميل المستند الماسي (Word)", word_file, file_name=f"Strategic_Report_{p_name}.docx")
-    else: st.error("⚠️ يرجى إدخال اسم المشروع والبيانات المطلوبة.")
-
-st.markdown('</div>', unsafe_allow_html=True)
+# ==========================================
+# 4. منطق التوليد (Generation Logic)
+# ==========================================
+if st.button("توليد التقرير السيادي"):
+    if not api_key_input:
+        st.error("خطأ تنفيذي: يرجى إدخال مفتاح API الخاص بك في اللوحة الجانبية أولاً.")
+    elif not any(answers_dict.values()):
+        st.warning("تنبيه: يرجى تعبئة حقل واحد على الأقل قبل التوليد.")
+    else:
+        with st.spinner("جاري صياغة الوثيقة التنفيذية..."):
+            try:
+                # تجميع البيانات في نص واحد للمحرك
+                formatted_answers = "\n".join([f"- {k}: {v}" for k, v in answers_dict.items() if v])
+                
+                # استدعاء دالة التوليد
+                final_report = generate_report(api_key_input, formatted_answers)
+                
+                # عرض النتيجة
+                st.success("تم توليد التقرير بنجاح.")
+                st.markdown("### معاينة التقرير:")
+                st.info(final_report)
+                
+                # تجهيز ملف Word للتحميل
+                docx_file = create_word_doc(final_report)
+                st.download_button(
+                    label="تحميل التقرير (Word)",
+                    data=docx_file,
+                    file_name="تقرير_نزول_ميداني_تنفيذي.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+                
+            except Exception as e:
+                st.error(f"حدث خطأ أثناء الاتصال بالمحرك: {e}")
