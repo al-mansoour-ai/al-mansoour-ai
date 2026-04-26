@@ -14,11 +14,14 @@ st.set_page_config(page_title="منصة المنصور الاستراتيجية"
 if 'device_id' not in st.session_state:
     st.session_state.device_id = str(uuid.getnode())
 
+# كود CSS المطور لشاشات الجوال والشريط السفلي الثابت
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
     #MainMenu, footer, header {visibility: hidden;}
-    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; }
+    
+    /* ترك مساحة في أسفل التطبيق كي لا يغطي الشريط السفلي على المحتوى */
+    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 40px; }
     
     h1, h2, h3, h4, p, span, div, label, li { 
         text-align: right !important; direction: rtl !important; color: #0a192f !important;
@@ -38,15 +41,58 @@ st.markdown("""
     
     .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #0a192f; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-right: 5px solid #d4af37; }
     
-    /* منع تكدس الأزرار السفلية في شاشات الجوال */
-    div[data-testid="stHorizontalBlock"] {
-        flex-wrap: nowrap !important;
+    /* أزرار الواتساب المصغرة تحت الباقات */
+    .whatsapp-btn-small {
+        display: block; background-color: #25D366; color: white !important; text-align: center; 
+        padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; margin-top: 15px; border: none;
+    }
+    
+    /* ========================================= */
+    /* كود تثبيت شريط التنقل السفلي لشاشات الجوال */
+    /* ========================================= */
+    div[data-testid="stHorizontalBlock"]:last-of-type {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        background-color: #ffffff;
+        z-index: 99999;
+        padding: 10px 5px 15px 5px;
+        box-shadow: 0px -3px 15px rgba(0, 0, 0, 0.1);
+        border-top: 2px solid #d4af37;
+        flex-wrap: nowrap !important; /* يجبر الأزرار على البقاء في سطر واحد */
+        justify-content: space-between !important;
+        gap: 5px !important;
+        margin: 0 !important;
+    }
+    
+    /* ضبط حجم الأزرار الأربعة في الشريط السفلي */
+    div[data-testid="stHorizontalBlock"]:last-of-type > div {
+        min-width: 0 !important;
+        width: 25% !important;
+    }
+    
+    div[data-testid="stHorizontalBlock"]:last-of-type button {
+        height: 45px !important;
+        font-size: 12px !important;
+        padding: 0 !important;
+        border-radius: 8px !important;
+        background-color: #f4f6f9 !important;
+        color: #0a192f !important;
+        border: 1px solid #dcdde1 !important;
+    }
+    
+    div[data-testid="stHorizontalBlock"]:last-of-type button:hover, 
+    div[data-testid="stHorizontalBlock"]:last-of-type button:active {
+        background-color: #0a192f !important;
+        color: #d4af37 !important;
+        border: 1px solid #d4af37 !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. القاموس المنهجي الكامل (مثبت ولن يمس)
+# 2. القاموس المنهجي الكامل (25 تقرير - 250 سؤال - مثبت لا يمس)
 # ==========================================
 methodology_db = {
     "مسار الرقابة والامتثال (ISO 19011)": {
@@ -445,12 +491,11 @@ def platform_page():
             st.error("⚠️ يرجى استكمال بيانات غلاف الوثيقة الإدارية في الأعلى.")
         else:
             try:
-                # [إصلاح مشكلة الـ 404 بتحديث اسم النموذج إلى gemini-1.5-pro-latest]
                 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
                 try:
                     model = genai.GenerativeModel('gemini-1.5-pro-latest')
                 except:
-                    model = genai.GenerativeModel('gemini-pro') # خط رجعة في حال كان الحساب لا يدعم 1.5
+                    model = genai.GenerativeModel('gemini-pro') 
                 
                 data_feed = "\n".join([f"- {k} {v}" for k, v in answers.items() if v])
                 if extra_answers:
@@ -496,18 +541,31 @@ def platform_page():
 
 def packages_page():
     st.title("💳 باقات الاشتراك وتفعيل الرصيد")
+    
+    # باقة المنجز
     st.markdown("""
     <div class="card-box">
         <h3 style="color:#0a192f;">باقة المنجز (3 تقارير)</h3>
         <p>تناسب المهام السريعة والتقارير الفردية.<br><b style="color:#d4af37;">السعر: 10,000 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة المنجز بقيمة 10,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الباقة عبر واتساب</a>
     </div>
+    """, unsafe_allow_html=True)
+    
+    # باقة الخبير
+    st.markdown("""
     <div class="card-box">
         <h3 style="color:#0a192f;">باقة الخبير (10 تقارير)</h3>
         <p>الخيار الأفضل لمديري المشاريع والفرق الميدانية.<br><b style="color:#d4af37;">السعر: 25,000 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة الخبير بقيمة 25,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الباقة عبر واتساب</a>
     </div>
+    """, unsafe_allow_html=True)
+    
+    # الباقة السيادية
+    st.markdown("""
     <div class="card-box">
         <h3 style="color:#0a192f;">الباقة السيادية المؤسسية (مفتوح)</h3>
-        <p>للمنظمات، مع إضافة مسارات مخصصة ودعم فني على مدار الساعة.<br><b style="color:#d4af37;">السعر: تواصل معنا</b></p>
+        <p>للمنظمات، مع إضافة مسارات مخصصة ودعم فني على مدار الساعة.<br><b style="color:#d4af37;">السعر: تواصل معنا لتحديد العرض</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاستفسار عن الباقة السيادية المؤسسية المفتوحة" class="whatsapp-btn-small" target="_blank">📱 تواصل معنا لطلب العرض</a>
     </div>
     """, unsafe_allow_html=True)
     
@@ -532,37 +590,23 @@ def admin_page():
             st.info(f"الكود الجديد الجاهز للعميل: **{new_code}**")
     st.markdown('</div>', unsafe_allow_html=True)
 
-def contact_page():
-    st.title("📞 تواصل مع المستشار")
-    st.markdown('<div class="card-box">', unsafe_allow_html=True)
-    st.markdown("لطلب أكواد التفعيل، الاستشارات الاستراتيجية، أو طلب بناء نماذج خاصة بمؤسستك:")
-    st.markdown(f"""
-        <a style="display: block; background-color: #25D366; color: white !important; text-align: center; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 18px; margin-top: 20px;" href="https://wa.me/967774575749">
-            💬 اضغط هنا لمراسلتنا عبر واتساب (774575749)
-        </a>
-    """, unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
 # ==========================================
-# 5. محرك توجيه الصفحات والتنقل السفلي
+# 5. محرك توجيه الصفحات وشريط التنقل السفلي
 # ==========================================
 
 if st.session_state.current_page == "login":
     login_page()
 else:
+    # عرض محتوى الصفحة المحددة
     if st.session_state.current_page == "platform": platform_page()
     elif st.session_state.current_page == "packages": packages_page()
     elif st.session_state.current_page == "admin": admin_page()
-    elif st.session_state.current_page == "contact": contact_page()
 
-    # شريط أزرار التنقل السفلي
-    st.markdown("---")
-    nav1, nav2, nav3, nav4 = st.columns(4)
+    # شريط التنقل السفلي الثابت (يُرسم دائماً في آخر الكود)
+    nav1, nav2, nav3 = st.columns(3)
     with nav1:
-        if st.button("📞 التواصل", use_container_width=True): change_page("contact")
+        if st.button("🛠️ الإدارة"): change_page("admin")
     with nav2:
-        if st.button("🛠️ الإدارة", use_container_width=True): change_page("admin")
+        if st.button("💳 الباقات"): change_page("packages")
     with nav3:
-        if st.button("💳 الباقات", use_container_width=True): change_page("packages")
-    with nav4:
-        if st.button("🏛️ المنصة", use_container_width=True): change_page("platform")
+        if st.button("🏛️ المنصة"): change_page("platform")
