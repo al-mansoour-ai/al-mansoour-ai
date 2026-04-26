@@ -9,19 +9,15 @@ import json
 import os
 
 # ==========================================
-# 1. إعدادات المنصة والهوية البصرية
+# 1. إعدادات المنصة وقاعدة البيانات
 # ==========================================
-st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
 
-# ==========================================
-# 2. نظام قاعدة البيانات المصغرة (Persistence)
-# ==========================================
 DB_FILE = "mansour_database.json"
 
 def init_db():
     if not os.path.exists(DB_FILE):
         with open(DB_FILE, "w", encoding="utf-8") as f:
-            # أكواد تجريبية جاهزة للاستخدام الأول
             json.dump({"users": {}, "codes": {"VIP2026": 100, "TEST3": 3}}, f)
 
 def load_db():
@@ -35,96 +31,56 @@ def save_db(data):
 
 db = load_db()
 
-# تهيئة حالة المستخدم في الجلسة الحالية
+# تهيئة حالة الجلسة
 if 'device_id' not in st.session_state: st.session_state.device_id = str(uuid.getnode())
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'current_page' not in st.session_state: st.session_state.current_page = "login"
+if 'wizard_step' not in st.session_state: st.session_state.wizard_step = 1
+if 'report_data' not in st.session_state: st.session_state.report_data = {}
 if 'extra_fields' not in st.session_state: st.session_state.extra_fields = []
 if 'generated_report_text' not in st.session_state: st.session_state.generated_report_text = ""
+if 'current_report_type' not in st.session_state: st.session_state.current_report_type = ""
 
 # ==========================================
-# 3. الهوية البصرية (إصلاح الأزرار والواجهة)
+# 2. الهوية البصرية (CSS)
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
     #MainMenu, footer, header {visibility: hidden;}
-    
     html, body, .stApp { background-color: #f8f9fa !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 70px; }
-    
-    h1, h2, h3, h4, p, span, div, label, li { 
-        text-align: right !important; direction: rtl !important; color: #2d3436 !important;
-    }
+    h1, h2, h3, h4, p, span, div, label, li { text-align: right !important; direction: rtl !important; color: #2d3436 !important; }
     h1, h2, h3 { color: #d4af37 !important; border-bottom: 1px solid #dfe6e9; padding-bottom: 10px; margin-bottom: 20px;}
-    
     div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, .stSelectbox > div {
-        background-color: #ffffff !important; border: 1px solid #dfe6e9 !important; border-radius: 8px !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.01);
+        background-color: #ffffff !important; border: 1px solid #dfe6e9 !important; border-radius: 8px !important;
     }
-    
-    /* إصلاح جذري لألوان الأزرار الرئيسية لتكون واضحة */
     .stButton > button { 
-        background-color: #0a192f !important; 
-        border: 1px solid #0a192f !important;
+        background-color: #0a192f !important; border: 1px solid #0a192f !important;
         border-radius: 8px !important; width: 100% !important; padding: 12px !important;
     }
-    /* إجبار النص داخل الزر ليكون أبيض ناصع */
-    .stButton > button p, .stButton > button span, .stButton > button div {
-        color: #ffffff !important; 
-        font-weight: 700 !important;
-    }
-    /* عند مرور الماوس أو الضغط يتحول لذهبي والنص أسود */
-    .stButton > button:hover, .stButton > button:active { 
-        background-color: #d4af37 !important; 
-        border: 1px solid #d4af37 !important;
-    }
-    .stButton > button:hover p, .stButton > button:active p,
-    .stButton > button:hover span, .stButton > button:active span {
-        color: #000000 !important; 
-    }
+    .stButton > button p, .stButton > button span { color: #ffffff !important; font-weight: 700 !important; }
+    .stButton > button:hover, .stButton > button:active { background-color: #d4af37 !important; border: 1px solid #d4af37 !important; }
+    .stButton > button:hover p, .stButton > button:hover span { color: #000000 !important; }
     
-    .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #dfe6e9; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-right: 5px solid #d4af37; }
+    .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #dfe6e9; margin-bottom: 20px; border-right: 5px solid #d4af37; }
     
-    .whatsapp-btn-small {
-        display: block; background-color: #25D366; color: white !important; text-align: center; 
-        padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin-top: 15px; border: none;
-    }
+    /* الشريط السفلي */
+    .bottom-nav-container { position: fixed; bottom: 0; left: 0; width: 100vw; background-color: #ffffff !important; z-index: 99999; padding: 5px 0px; border-top: 1px solid #dfe6e9 !important; }
+    div[data-testid="stHorizontalBlock"]:last-of-type { position: fixed; bottom: 0; left: 0; width: 100vw; background-color: #ffffff !important; z-index: 99999; padding: 5px 0px; border-top: 1px solid #dfe6e9 !important; flex-wrap: nowrap !important; gap: 0px !important; margin: 0 !important; }
+    div[data-testid="stHorizontalBlock"]:last-of-type > div { min-width: 0 !important; width: 33.33% !important; flex: 1 !important; }
+    div[data-testid="stHorizontalBlock"]:last-of-type button { height: 50px !important; background-color: transparent !important; border: none !important; box-shadow: none !important; }
+    div[data-testid="stHorizontalBlock"]:last-of-type button p { color: #636e72 !important; font-weight: 600 !important; font-size: 13px !important; margin: 0 !important; }
+    div[data-testid="stHorizontalBlock"]:last-of-type button:hover p { color: #0a192f !important; font-weight: 700 !important; }
     
-    /* الشريط السفلي الأنيق */
-    div[data-testid="stHorizontalBlock"]:last-of-type {
-        position: fixed; bottom: 0; left: 0; width: 100vw;
-        background-color: #ffffff !important; 
-        z-index: 99999;
-        padding: 5px 0px 10px 0px; 
-        box-shadow: 0px -2px 10px rgba(0,0,0,0.05) !important;
-        border-top: 1px solid #dfe6e9 !important; 
-        flex-wrap: nowrap !important; justify-content: space-between !important;
-        gap: 0px !important; margin: 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"]:last-of-type > div {
-        min-width: 0 !important; width: 33.33% !important;
-    }
-    div[data-testid="stHorizontalBlock"]:last-of-type button {
-        height: 50px !important;
-        background-color: transparent !important;
-        border: none !important; 
-        box-shadow: none !important;
-    }
-    div[data-testid="stHorizontalBlock"]:last-of-type button p {
-        color: #636e72 !important; 
-        font-weight: 600 !important;
-        font-size: 13px !important;
-        margin: 0 !important;
-    }
-    div[data-testid="stHorizontalBlock"]:last-of-type button:hover p, 
-    div[data-testid="stHorizontalBlock"]:last-of-type button:active p {
-        color: #d4af37 !important; 
-        font-weight: 700 !important;
-    }
+    /* تنسيق مسار المراحل الذكية */
+    .step-indicator { display: flex; justify-content: space-between; margin-bottom: 20px; padding: 10px; background: #e9ecef; border-radius: 8px; }
+    .step-item { flex: 1; text-align: center; font-size: 14px; font-weight: bold; color: #b2bec3; }
+    .step-active { color: #0a192f; border-bottom: 3px solid #d4af37; padding-bottom: 5px; }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 4. القاموس المنهجي (مثبت بالكامل - 250 سؤال)
+# 3. القاموس المنهجي (25 تقرير - 250 سؤال)
 # ==========================================
 methodology_db = {
     "مسار الرقابة والامتثال (ISO 19011)": {
@@ -439,31 +395,46 @@ methodology_db = {
     }
 }
 
+# ==========================================
+# 4. وظائف الدعم
+# ==========================================
 def change_page(page_name):
     st.session_state.current_page = page_name
     st.rerun()
 
-# ==========================================
-# 5. منطق العمل وبناء الصفحات
-# ==========================================
+def render_questions(q_list, prefix):
+    """دالة لإنشاء الحقول وربطها بـ session_state لحفظها"""
+    for i, (q_text, q_hint) in enumerate(q_list):
+        key = f"{prefix}_q_{i}"
+        if key not in st.session_state.report_data:
+            st.session_state.report_data[key] = ""
+        st.session_state.report_data[key] = st.text_area(f"{q_text}", value=st.session_state.report_data[key], placeholder=f"إرشاد: {q_hint}", key=f"widget_{key}")
+        # تحديث القيمة في الذاكرة عند الكتابة
+        st.session_state.report_data[key] = st.session_state[f"widget_{key}"]
 
+def calculate_impact(data_dict):
+    """محرك بسيط لقياس كثافة وقوة البيانات المدخلة"""
+    word_count = sum(len(str(v).split()) for v in data_dict.values() if v)
+    if word_count < 20: return "⚠️ منخفضة جداً (مدخلات سطحية)"
+    elif word_count < 60: return "✅ جيدة (تحتاج تفصيل أكثر)"
+    else: return "🔥 قوية واستراتيجية"
+
+# ==========================================
+# 5. بناء الصفحات (UI & Logic)
+# ==========================================
 def login_page():
     st.markdown('<div class="card-box" style="margin-top: 50px;">', unsafe_allow_html=True)
     st.title("🔐 الدخول للمنصة السيادية")
-    st.info("نظام حماية الأرصدة مفعل. يرجى إدخال رقم جوالك.")
     
-    user_id = st.text_input("أدخل رقم الجوال:", placeholder="مثال: 774575749")
-    
+    user_id = st.text_input("أدخل رقم الجوال للمتابعة:", placeholder="77XXXXXXX")
     if st.button("دخول / إنشاء حساب مجاني"):
         if user_id:
-            # تحديث أو جلب بيانات المستخدم من قاعدة البيانات المحلية
             if user_id not in db["users"]:
-                # مستخدم جديد: نمنحه تقرير تجريبي واحد
+                # باقة مجانية لأول مرة (Market Penetration)
                 db["users"][user_id] = {"balance": 1, "device_id": st.session_state.device_id}
                 save_db(db)
                 st.session_state.user_balance = 1
             else:
-                # مستخدم مسجل مسبقاً
                 st.session_state.user_balance = db["users"][user_id]["balance"]
             
             st.session_state.logged_in = True
@@ -476,96 +447,138 @@ def login_page():
 
 def platform_page():
     st.title("المنصور الاستراتيجية")
-    st.info(f"رصيدك: **{st.session_state.user_balance} تقارير** | المستخدم: {st.session_state.user_id}")
+    st.info(f"رصيدك: **{st.session_state.user_balance} تقارير** | المستشار: {st.session_state.user_id}")
     
-    st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
-    # استخدام session_state.key لحفظ البيانات أثناء التنقل
-    org_name = st.text_input("الجهة المصدرة للوثيقة:", key="org_name", placeholder="مؤسسة شباب اليمن للتنمية")
-    loc_name = st.text_input("النطاق الجغرافي:", key="loc_name", placeholder="تعز - مديرية المظفر")
-    proj_name = st.text_input("اسم المشروع / المهمة:", key="proj_name", placeholder="مشروع التدخل السريع")
-    author_name = st.text_input("إعداد (الاسم والمنصب):", key="author_name", placeholder="منصور الوصابي - استشاري")
+    # اختيار المسار والتقرير (يرسّت المراحل لو تم تغيير التقرير)
+    pillar = st.selectbox("1. المسار الاستراتيجي:", list(methodology_db.keys()))
+    report_type = st.selectbox("2. التقرير التخصصي:", list(methodology_db[pillar].keys()))
+    
+    if st.session_state.current_report_type != report_type:
+        st.session_state.current_report_type = report_type
+        st.session_state.wizard_step = 1
+        st.session_state.report_data = {} # مسح الداتا السابقة لاختلاف التقرير
+    
+    questions = methodology_db[pillar][report_type]
+    step1_qs = questions[:3]
+    step2_qs = questions[3:7]
+    step3_qs = questions[7:]
 
     st.markdown("---")
-    st.markdown("### 🔍 ثانياً: الاستنطاق المنهجي (العالمي)")
-    pillar = st.selectbox("1. حدد المسار الاستراتيجي الرئيسي:", list(methodology_db.keys()), key="pillar_sel")
-    report_type = st.selectbox("2. حدد التقرير التخصصي (الفرعي):", list(methodology_db[pillar].keys()), key="report_sel")
     
-    st.success(f"النموذج المعتمد: {report_type}")
-    
-    answers = {}
-    for i, (q_text, q_hint) in enumerate(methodology_db[pillar][report_type]):
-        # مفتاح فريد لكل سؤال لمنع ضياع الإجابة
-        ans_key = f"ans_{pillar}_{report_type}_{i}"
-        answers[q_text] = st.text_area(f"{i+1}. {q_text}", key=ans_key, placeholder=f"إرشاد: {q_hint}")
+    # مؤشر المراحل الذكي (UI)
+    col_ind1, col_ind2, col_ind3 = st.columns(3)
+    with col_ind1: st.markdown(f"<div class='step-item {'step-active' if st.session_state.wizard_step==1 else ''}'>1. التشخيص</div>", unsafe_allow_html=True)
+    with col_ind2: st.markdown(f"<div class='step-item {'step-active' if st.session_state.wizard_step==2 else ''}'>2. التحليل</div>", unsafe_allow_html=True)
+    with col_ind3: st.markdown(f"<div class='step-item {'step-active' if st.session_state.wizard_step==3 else ''}'>3. القرار والاعتماد</div>", unsafe_allow_html=True)
 
-    st.markdown("#### ➕ إضافات مخصصة (حقول العميل)")
-    if st.button("إضافة حقل/سؤال إضافي خاص بك"):
-        st.session_state.extra_fields.append(len(st.session_state.extra_fields))
-        st.rerun()
-    
-    extra_answers = {}
-    for i in st.session_state.extra_fields:
-        et = st.text_input(f"عنوان الحقل الإضافي {i+1}:", key=f"ex_t_{i}")
-        ea = st.text_area(f"إجابة الحقل الإضافي {i+1}:", key=f"ex_a_{i}")
-        if et and ea: extra_answers[et] = ea
+    # -------------------- المرحلة 1 --------------------
+    if st.session_state.wizard_step == 1:
+        st.subheader("📍 المرحلة 1: التشخيص المبدئي")
+        
+        # الغلاف محفوظ في الـ Data
+        if 'org_name' not in st.session_state.report_data: st.session_state.report_data['org_name'] = ""
+        st.session_state.report_data['org_name'] = st.text_input("اسم الجهة / المنظمة:", value=st.session_state.report_data['org_name'])
+        
+        render_questions(step1_qs, "s1")
+        
+        if st.button("التالي: التحليل ⬅️"):
+            st.session_state.wizard_step = 2
+            st.rerun()
 
-    st.markdown("---")
-    st.markdown("### 📁 ثالثاً: الشواهد والاعتمادات")
-    uploaded_files = st.file_uploader("ارفع صور أو وثائق (PDF/JPG):", accept_multiple_files=True)
-    links_str = st.text_input("روابط المراجع (Google Drive / DropBox):", key="links_str")
-    final_recs = st.text_area("التوصيات والمقترحات الختامية للإدارة العليا:", key="final_recs")
+    # -------------------- المرحلة 2 --------------------
+    elif st.session_state.wizard_step == 2:
+        st.subheader("📊 المرحلة 2: التحليل والتقييم")
+        render_questions(step2_qs, "s2")
+        
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            if st.button("التالي: القرار ⬅️"):
+                st.session_state.wizard_step = 3
+                st.rerun()
+        with col_b2:
+            if st.button("➡️ السابق"):
+                st.session_state.wizard_step = 1
+                st.rerun()
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("معاينة واعتماد الوثيقة السيادية"):
-        if st.session_state.user_balance <= 0:
-            st.error("⚠️ رصيدك (0). يرجى التوجه لصفحة 'الباقات' لشحن الرصيد أولاً.")
-        elif not (org_name and proj_name and author_name):
-            st.error("⚠️ يرجى استكمال بيانات غلاف الوثيقة الإدارية في الأعلى.")
-        else:
-            try:
-                genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY"))
-                try: model = genai.GenerativeModel('gemini-1.5-flash')
-                except: model = genai.GenerativeModel('gemini-pro')
-                
-                data_feed = "\n".join([f"- {k} {v}" for k, v in answers.items() if v])
-                if extra_answers:
-                    data_feed += "\n\nمعطيات إضافية مخصصة:\n" + "\n".join([f"- {k} {v}" for k, v in extra_answers.items()])
-                
-                current_date = datetime.date.today().strftime("%Y-%m-%d")
-                prompt = f"""
-                بصفتك مستشاراً تنفيذياً، صغ تقرير '{report_type}' لجهة '{org_name}' حول مشروع '{proj_name}'.
-                الموقع: {loc_name}. إعداد: {author_name}. التاريخ: {current_date}.
-                المنهجية: {pillar}.
-                البيانات المحللة:
-                {data_feed}
-                التوصيات: {final_recs}
-                المرفقات: {links_str}
-                اكتب التقرير بلغة رسمية، واعتمد الأرقام، وتجنب الحشو.
-                """
-                
-                with st.spinner("جاري صهر البيانات..."):
-                    response = model.generate_content(prompt)
-                    st.session_state.generated_report_text = response.text
-                    
-                    # خصم الرصيد وحفظه في القاعدة
-                    st.session_state.user_balance -= 1
-                    db["users"][st.session_state.user_id]["balance"] = st.session_state.user_balance
-                    save_db(db)
-                    
-                    st.success("تم الاعتماد بنجاح!")
-            except Exception as e:
-                st.error(f"عطل في محرك الصياغة: {e}")
+    # -------------------- المرحلة 3 --------------------
+    elif st.session_state.wizard_step == 3:
+        st.subheader("🎯 المرحلة 3: القرار والاعتمادات")
+        render_questions(step3_qs, "s3")
+        
+        # حقول ختامية محفوظة
+        if 'final_recs' not in st.session_state.report_data: st.session_state.report_data['final_recs'] = ""
+        st.session_state.report_data['final_recs'] = st.text_area("التوصيات الختامية للإدارة العليا:", value=st.session_state.report_data['final_recs'])
+        
+        # مقياس قوة البيانات
+        st.metric("قوة البيانات المدخلة في هذا التقرير:", calculate_impact(st.session_state.report_data))
+        
+        col_b3, col_b4 = st.columns(2)
+        with col_b3:
+            if st.button("اعتماد وتوليد الوثيقة السيادية 📄"):
+                if st.session_state.user_balance <= 0:
+                    st.error("⚠️ رصيدك (0). يرجى شحن الباقة.")
+                else:
+                    try:
+                        genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY"))
+                        try: model = genai.GenerativeModel('gemini-1.5-flash')
+                        except: model = genai.GenerativeModel('gemini-pro') # خط الرجعة
+                        
+                        data_feed = "\n".join([f"- {k}: {v}" for k, v in st.session_state.report_data.items() if v])
+                        
+                        # البرومبت الاستشاري العميق
+                        prompt = f"""
+                        أنت مستشار استراتيجي عالمي تعمل لصالح السيد منصور الوصابي.
+                        
+                        مهمتك:
+                        تحويل البيانات الميدانية التالية إلى تقرير تنفيذي احترافي يركز على:
+                        - كشف الفجوات الحقيقية والأسباب الجذرية.
+                        - تحليل المخاطر المترتبة.
+                        - تقديم قرارات واضحة وقابلة للتنفيذ للإدارة العليا.
+                        
+                        المنهجية: {pillar}
+                        نوع التقرير: {report_type}
+                        
+                        البيانات المدخلة:
+                        {data_feed}
+                        
+                        التعليمات الإلزامية:
+                        1. لا تعيد صياغة الكلام فقط → حلل بعمق واربط الأسباب بالنتائج.
+                        2. استخرج المشاكل المخفية التي لم تصرح بها البيانات صراحة.
+                        3. اكتب بلغة رصينة، رسمية، واستخدم نقاطاً (Bullet points).
+                        4. يجب أن يكون التقرير مقنعاً لمتخذ قرار سيادي.
+                        
+                        هيكل المخرجات:
+                        - عنوان التقرير.
+                        - الملخص التنفيذي (Executive Summary).
+                        - التشخيص والتحليل (Diagnosis).
+                        - الفجوات والمخاطر الحرجة (Risks).
+                        - القرارات والتوصيات (Decisions).
+                        """
+                        
+                        with st.spinner("المحرك الذكي يقوم بالتحليل وصياغة التقرير..."):
+                            response = model.generate_content(prompt)
+                            st.session_state.generated_report_text = response.text
+                            
+                            st.session_state.user_balance -= 1
+                            db["users"][st.session_state.user_id]["balance"] = st.session_state.user_balance
+                            save_db(db)
+                            
+                            st.success("تم التوليد بنجاح! تم خصم تقرير واحد من رصيدك.")
+                    except Exception as e:
+                        st.error(f"عطل تقني في محرك الذكاء الاصطناعي: {e}")
+        with col_b4:
+            if st.button("➡️ السابق"):
+                st.session_state.wizard_step = 2
+                st.rerun()
 
-    # عرض نافذة المعاينة إذا كان هناك تقرير مولّد
-    if st.session_state.get('generated_report_text'):
+    # نافذة عرض مسودة التقرير وتحميله (إن وجدت)
+    if st.session_state.generated_report_text:
         st.markdown("---")
-        st.markdown("### 📄 معاينة الوثيقة السيادية (المسودة النهائية)")
+        st.markdown("### 📄 معاينة الوثيقة السيادية")
         st.info(st.session_state.generated_report_text)
         
-        # تصدير Word
         doc = Document()
-        doc.add_heading(f"{st.session_state.get('org_name','')} | {st.session_state.get('report_sel','')}", 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_heading(f"{st.session_state.report_data.get('org_name','')} | {report_type}", 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
         for line in st.session_state.generated_report_text.split('\n'):
             if line.strip():
                 p = doc.add_paragraph(line.strip())
@@ -573,72 +586,65 @@ def platform_page():
         bio = io.BytesIO()
         doc.save(bio)
         
-        st.download_button(
-            "⬇️ تحميل الوثيقة بصيغة (Word)", 
-            bio.getvalue(), 
-            file_name=f"Report_{st.session_state.get('proj_name','Document')}.docx",
-            key="download_word"
-        )
+        st.download_button("⬇️ تحميل التقرير (Word)", bio.getvalue(), file_name="Executive_Report.docx")
 
 def packages_page():
-    st.title("💳 باقات الاشتراك")
+    st.title("💳 باقات الاشتراك (التسعير المخفض)")
     
     st.markdown("""
     <div class="card-box">
         <h3 style="color:#2d3436;">باقة البداية (3 تقارير)</h3>
-        <p>تناسب المهام الميدانية السريعة.<br><b style="color:#d4af37;">السعر: 1,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة 3 تقارير بقيمة 1000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
+        <p>مثالية لاختبار جودة التقارير والتحليل الاستراتيجي السريع.<br><b style="color:#d4af37;">السعر: 1,000 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد كود شحن لباقة 3 تقارير بقيمة 1000 ريال" class="whatsapp-btn-small" target="_blank">طلب الكود عبر واتساب</a>
     </div>
     <div class="card-box">
         <h3 style="color:#2d3436;">باقة التمكين (6 تقارير)</h3>
-        <p>لتقييم المشاريع الدورية والمتابعة المستمرة.<br><b style="color:#d4af37;">السعر: 1,500 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة 6 تقارير بقيمة 1500 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
+        <p>الخيار المتوسط لتقييم المشاريع الدورية.<br><b style="color:#d4af37;">السعر: 1,500 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد كود شحن لباقة 6 تقارير بقيمة 1500 ريال" class="whatsapp-btn-small" target="_blank">طلب الكود عبر واتساب</a>
     </div>
     <div class="card-box">
         <h3 style="color:#2d3436;">الباقة التنفيذية (12 تقرير)</h3>
-        <p>الخيار الأوفر للمنظمات والمدراء لإعداد تقارير شاملة.<br><b style="color:#d4af37;">السعر: 2,500 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في الباقة التنفيذية 12 تقرير بقيمة 2500 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
+        <p>أعلى قيمة مقابل السعر. للمدراء والمقيمين المستقلين.<br><b style="color:#d4af37;">السعر: 2,500 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد كود شحن للباقة التنفيذية 12 تقرير بقيمة 2500 ريال" class="whatsapp-btn-small" target="_blank">طلب الكود عبر واتساب</a>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
     st.subheader("تفعيل كود الشحن")
-    act_code = st.text_input("أدخل كود الشحن الذي استلمته:")
+    act_code = st.text_input("أدخل كود الشحن هنا:")
     if st.button("شحن الرصيد"):
         if act_code in db["codes"]:
-            added_reports = db["codes"].pop(act_code) # يحذف الكود بعد استخدامه
-            
+            added_reports = db["codes"].pop(act_code)
             st.session_state.user_balance += added_reports
             db["users"][st.session_state.user_id]["balance"] = st.session_state.user_balance
-            save_db(db) # حفظ الرصيد الجديد وحذف الكود المستعمل
-            
+            save_db(db)
             st.success(f"تم الشحن بنجاح! رصيدك الكلي: {st.session_state.user_balance}")
         else:
             st.error("الكود غير صحيح أو تم استخدامه مسبقاً.")
 
 def admin_page():
     st.markdown('<div class="card-box">', unsafe_allow_html=True)
-    st.title("🛠️ لوحة الإدارة السيادية")
+    st.title("🛠️ لوحة تحكم الإدارة")
     pw = st.text_input("كلمة السر الإدارية:", type="password")
     
     if pw == "Mansour@2026":
         st.success("تم تأكيد الهوية. مرحباً بك سعادة المستشار.")
-        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["باقة 3 تقارير", "باقة 6 تقارير", "باقة 12 تقرير"])
+        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["3 تقارير (1000 ريال)", "6 تقارير (1500 ريال)", "12 تقرير (2500 ريال)"])
         
-        if st.button("توليد كود التفعيل"):
+        if st.button("توليد كود التفعيل للعميل"):
             new_code = f"MS-{uuid.uuid4().hex[:6].upper()}"
             if "3" in pack_type: db["codes"][new_code] = 3
             elif "6" in pack_type: db["codes"][new_code] = 6
             elif "12" in pack_type: db["codes"][new_code] = 12
             
-            save_db(db) # حفظ الكود الجديد في القاعدة
+            save_db(db)
             st.info(f"الكود الجديد: **{new_code}**")
     elif pw:
         st.error("كلمة السر غير صحيحة.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# 6. التوجيه والشريط السفلي
+# 6. التوجيه والشريط السفلي الأنيق
 # ==========================================
 if not st.session_state.logged_in:
     login_page()
@@ -647,7 +653,7 @@ else:
     elif st.session_state.current_page == "packages": packages_page()
     elif st.session_state.current_page == "admin": admin_page()
 
-    # الشريط السفلي (أيقونات ونص واضح)
+    # شريط التنقل السفلي الخفيف والمريح للعين
     nav1, nav2, nav3 = st.columns(3)
     with nav1:
         if st.button("🏠 المنصة"): change_page("platform")
