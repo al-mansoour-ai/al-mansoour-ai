@@ -9,7 +9,7 @@ import json
 import os
 
 # ==========================================
-# 1. إعدادات المنصة وقاعدة البيانات
+# 1. إعدادات المنصة وقاعدة البيانات (الحزم والإتقان)
 # ==========================================
 st.set_page_config(page_title="المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
 
@@ -35,9 +35,10 @@ if 'current_page' not in st.session_state: st.session_state.current_page = "logi
 if 'step' not in st.session_state: st.session_state.step = 1
 if 'report_preview' not in st.session_state: st.session_state.report_preview = ""
 if 'current_report' not in st.session_state: st.session_state.current_report = ""
+if 'extra_fields' not in st.session_state: st.session_state.extra_fields = []
 
 # ==========================================
-# 2. الهوية البصرية (كايرو + RTL + أزرار واضحة)
+# 2. الهوية البصرية الصارمة (كايرو + RTL)
 # ==========================================
 st.markdown("""
 <style>
@@ -52,7 +53,7 @@ st.markdown("""
     
     html, body, .stApp { 
         background-color: #f8f9fa !important; 
-        padding-bottom: 80px; 
+        padding-bottom: 90px; 
     }
     
     h1, h2, h3, h4, p, span, div, label, li, input, textarea, select { 
@@ -72,6 +73,7 @@ st.markdown("""
     .stButton > button { 
         background-color: #0a192f !important; border: 1px solid #0a192f !important;
         border-radius: 10px !important; width: 100% !important; padding: 12px !important;
+        margin-bottom: 10px !important; /* مسافة بين الأزرار لمنع التلاصق */
     }
     .stButton > button p, .stButton > button span { color: #ffffff !important; font-weight: 700 !important; font-size: 16px; }
     
@@ -80,7 +82,7 @@ st.markdown("""
     }
     .stButton > button:hover p, .stButton > button:active p { color: #000000 !important; }
 
-    /* الشريط السفلي (نمط واتساب) */
+    /* الشريط السفلي (نمط واتساب) معزول تماماً */
     div[data-testid="stHorizontalBlock"]:last-of-type {
         position: fixed; bottom: 0; left: 0; width: 100vw;
         background-color: #f8f9fa !important; z-index: 99999;
@@ -421,7 +423,7 @@ methodology_db = {
 }
 
 # ==========================================
-# 4. منطق الحفظ التلقائي (Persistence Logic)
+# 4. منطق الحفظ التلقائي (Drafting)
 # ==========================================
 def update_draft(key, value):
     uid = st.session_state.user_id
@@ -437,16 +439,15 @@ def get_draft(key, default=""):
     return default
 
 # ==========================================
-# 5. صفحات النظام (UI Pages)
+# 5. صفحات النظام
 # ==========================================
 def login_page():
     st.markdown('<div class="card-box" style="margin-top:50px;">', unsafe_allow_html=True)
     st.title("🔐 الدخول للمنصة السيادية")
     uid = st.text_input("رقم الجوال (للدخول واستعادة التقارير):", placeholder="مثال: 774575749")
-    if st.button("دخول آمن"):
+    if st.button("دخول آمن للمنصة", key="login_btn"):
         if uid:
             if uid not in db["users"]:
-                # باقة مجانية لأول مرة
                 db["users"][uid] = {"balance": 1, "draft": {}}
                 save_db(db)
             st.session_state.user_id = uid
@@ -464,15 +465,15 @@ def platform_page():
     st.title("المنصور الاستراتيجية")
     st.info(f"المستشار: **{uid}** | الرصيد: **{balance} تقارير**")
 
-    # الغلاف الإداري (يظهر دائماً ومحفوظ)
+    # بيانات الغلاف (ثابتة في كل المراحل ومحفوظة)
     st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
-    org = st.text_input("الجهة المصدرة:", value=get_draft("org_name"), placeholder="مؤسسة شباب اليمن للتنمية")
+    org = st.text_input("الجهة المصدرة للوثيقة:", value=get_draft("org_name"), placeholder="مؤسسة شباب اليمن للتنمية")
     update_draft("org_name", org)
     
     loc = st.text_input("النطاق الجغرافي:", value=get_draft("loc_name"), placeholder="تعز - مديرية المظفر")
     update_draft("loc_name", loc)
     
-    proj = st.text_input("اسم المشروع/المهمة:", value=get_draft("proj_name"), placeholder="مشروع التدخل السريع")
+    proj = st.text_input("اسم المشروع / المهمة:", value=get_draft("proj_name"), placeholder="مشروع التدخل السريع")
     update_draft("proj_name", proj)
     
     author = st.text_input("إعداد (الاسم والمنصب):", value=get_draft("author_name"), placeholder="منصور الوصابي - استشاري")
@@ -480,7 +481,6 @@ def platform_page():
 
     st.markdown("---")
     
-    # اختيار المسار (يُصَفّر المراحل لو تم التغيير)
     st.markdown("### 🔍 ثانياً: الاستنطاق المنهجي (العالمي)")
     pillar = st.selectbox("1. المسار الاستراتيجي:", list(methodology_db.keys()))
     report_type = st.selectbox("2. التقرير التخصصي:", list(methodology_db[pillar].keys()))
@@ -494,46 +494,47 @@ def platform_page():
     
     st.markdown(f"--- المرحلة الحالية: **{st.session_state.step} من 3** ---")
     
-    # المرحلة 1
+    # === المرحلة الأولى ===
     if st.session_state.step == 1:
         st.subheader("📍 المرحلة 1: التشخيص والمطابقة")
         for i, (q, h) in enumerate(questions[:3]):
-            ans = st.text_area(f"{i+1}. {q}", value=get_draft(f"q_{report_type}_{i}"), placeholder=h)
+            ans = st.text_area(f"{i+1}. {q}", value=get_draft(f"q_{report_type}_{i}"), placeholder=h, key=f"key_{report_type}_{i}")
             update_draft(f"q_{report_type}_{i}", ans)
             
-        if st.button("التالي: التحليل ⬅️"):
+        # الأزرار مرصوصة رأسياً لمنع التداخل في الجوال
+        if st.button("التالي: التحليل والأسباب ⬅️", key="btn_next_1"):
             st.session_state.step = 2
             st.rerun()
 
-    # المرحلة 2
+    # === المرحلة الثانية ===
     elif st.session_state.step == 2:
         st.subheader("📊 المرحلة 2: التحليل والأسباب الجذرية")
         for i, (q, h) in enumerate(questions[3:7]):
             idx = i + 3
-            ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h)
+            ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h, key=f"key_{report_type}_{idx}")
             update_draft(f"q_{report_type}_{idx}", ans)
             
-        c1, c2 = st.columns(2)
-        if c1.button("التالي: القرار ⬅️"):
+        # الأزرار مرصوصة رأسياً بوضوح
+        if st.button("التالي: القرارات والاعتماد ⬅️", key="btn_next_2"):
             st.session_state.step = 3
             st.rerun()
-        if c2.button("➡️ السابق"):
+        if st.button("➡️ رجوع للسابق", key="btn_prev_2"):
             st.session_state.step = 1
             st.rerun()
 
-    # المرحلة 3
+    # === المرحلة الثالثة ===
     elif st.session_state.step == 3:
-        st.subheader("🎯 المرحلة 3: القرارات والاعتماد")
+        st.subheader("🎯 المرحلة 3: القرارات والاعتمادات")
         for i, (q, h) in enumerate(questions[7:]):
             idx = i + 7
-            ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h)
+            ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h, key=f"key_{report_type}_{idx}")
             update_draft(f"q_{report_type}_{idx}", ans)
             
-        recs = st.text_area("التوصيات الختامية للإدارة العليا:", value=get_draft(f"recs_{report_type}"))
+        recs = st.text_area("التوصيات الختامية للإدارة العليا:", value=get_draft(f"recs_{report_type}"), key=f"recs_key_{report_type}")
         update_draft(f"recs_{report_type}", recs)
         
-        c3, c4 = st.columns(2)
-        if c3.button("اعتماد وتوليد الوثيقة السيادية 📄"):
+        # الأزرار مرصوصة رأسياً
+        if st.button("اعتماد وتوليد الوثيقة السيادية 📄", key="btn_gen_3"):
             if balance <= 0:
                 st.error("⚠️ رصيدك صفر. يرجى شحن الباقة.")
             elif not (org and proj and author):
@@ -541,9 +542,8 @@ def platform_page():
             else:
                 try:
                     genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY"))
-                    model = genai.GenerativeModel('gemini-pro') # المحرك المستقر دائماً
+                    model = genai.GenerativeModel('gemini-pro')
                     
-                    # تجميع البيانات من المسودة للتقرير الحالي فقط
                     data_summary = ""
                     for i, (q, _) in enumerate(questions):
                         ans_val = get_draft(f"q_{report_type}_{i}")
@@ -553,14 +553,10 @@ def platform_page():
                     أنت مستشار استراتيجي سيادي.
                     صغ تقرير '{report_type}' لجهة '{org}' مشروع '{proj}' بنطاق '{loc}'.
                     إعداد: {author}. التاريخ: {datetime.date.today().strftime("%Y-%m-%d")}.
-                    
                     البيانات الميدانية:
                     {data_summary}
-                    
                     التوصيات: {recs}
-                    
                     المطلوب تقرير تنفيذي قوي يحلل الفجوات والمخاطر ويصيغ قرارات، بلغة رصينة ومباشرة (بدون حشو).
-                    ابدأ بالغلاف، ثم الملخص التنفيذي، ثم التشخيص، ثم القرارات.
                     """
                     with st.spinner("المحرك الذكي يقوم بالصياغة..."):
                         res = model.generate_content(prompt)
@@ -571,11 +567,11 @@ def platform_page():
                 except Exception as e:
                     st.error(f"خطأ تقني: {e}")
                     
-        if c4.button("➡️ السابق"):
+        if st.button("➡️ رجوع للسابق", key="btn_prev_3"):
             st.session_state.step = 2
             st.rerun()
 
-    # المعاينة والتحميل
+    # المعاينة
     if st.session_state.report_preview:
         st.markdown("### 📄 معاينة الوثيقة")
         st.info(st.session_state.report_preview)
@@ -585,7 +581,7 @@ def platform_page():
             if line.strip(): doc.add_paragraph(line.strip()).alignment = WD_ALIGN_PARAGRAPH.RIGHT
         bio = io.BytesIO()
         doc.save(bio)
-        st.download_button("⬇️ تحميل (Word)", bio.getvalue(), file_name=f"{proj}.docx")
+        st.download_button("⬇️ تحميل (Word)", bio.getvalue(), file_name=f"{proj}.docx", key="btn_dl_word")
 
 def packages_page():
     st.title("💳 باقات الاشتراك الذكية")
@@ -609,8 +605,8 @@ def packages_page():
     """, unsafe_allow_html=True)
     
     st.markdown("---")
-    code = st.text_input("أدخل كود الشحن:")
-    if st.button("تفعيل الكود"):
+    code = st.text_input("أدخل كود الشحن:", key="recharge_code")
+    if st.button("تفعيل الكود", key="btn_recharge"):
         if code in db["codes"]:
             val = db["codes"].pop(code)
             db["users"][st.session_state.user_id]["balance"] += val
@@ -621,11 +617,11 @@ def packages_page():
 
 def admin_page():
     st.title("🛠️ لوحة تحكم الإدارة")
-    pw = st.text_input("رمز الدخول:", type="password")
+    pw = st.text_input("رمز الدخول:", type="password", key="admin_pw")
     if pw == "Mansour@2026":
         st.success("مرحباً مستشار منصور")
-        pack = st.selectbox("نوع الباقة:", ["3 تقارير (1000 ريال)", "6 تقارير (1500 ريال)", "12 تقرير (2500 ريال)"])
-        if st.button("توليد كود للعميل"):
+        pack = st.selectbox("نوع الباقة:", ["3 تقارير (1000 ريال)", "6 تقارير (1500 ريال)", "12 تقرير (2500 ريال)"], key="admin_pack")
+        if st.button("توليد كود للعميل", key="btn_gen_code"):
             new_code = f"MS-{uuid.uuid4().hex[:6].upper()}"
             if "3" in pack: db["codes"][new_code] = 3
             elif "6" in pack: db["codes"][new_code] = 6
@@ -647,10 +643,11 @@ else:
     elif st.session_state.current_page == "packages": packages_page()
     elif st.session_state.current_page == "admin": admin_page()
 
+    # الشريط السفلي معزول لعدم التداخل
     nav1, nav2, nav3 = st.columns(3)
     with nav1:
-        if st.button("🏠 المنصة"): change_pg("platform")
+        if st.button("🏠 المنصة", key="nav_btn_1"): change_pg("platform")
     with nav2:
-        if st.button("💳 الباقات"): change_pg("packages")
+        if st.button("💳 الباقات", key="nav_btn_2"): change_pg("packages")
     with nav3:
-        if st.button("🛠️ الإدارة"): change_pg("admin")
+        if st.button("🛠️ الإدارة", key="nav_btn_3"): change_pg("admin")
