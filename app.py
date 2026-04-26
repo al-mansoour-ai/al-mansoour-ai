@@ -7,7 +7,7 @@ import datetime
 import uuid
 
 # ==========================================
-# 1. إعدادات المنصة والهوية البصرية (Navy & Gold)
+# 1. إعدادات المنصة والهوية البصرية
 # ==========================================
 st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
 
@@ -21,9 +21,9 @@ st.markdown("""
     html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; }
     
     h1, h2, h3, h4, p, span, div, label, li { 
-        text-align: right !important; direction: rtl !important; color: #0a192f !important; /* كحلي سيادي */
+        text-align: right !important; direction: rtl !important; color: #0a192f !important;
     }
-    h1, h2, h3 { color: #d4af37 !important; border-bottom: 2px solid #0a192f; padding-bottom: 10px; margin-bottom: 20px;} /* ذهبي */
+    h1, h2, h3 { color: #d4af37 !important; border-bottom: 2px solid #0a192f; padding-bottom: 10px; margin-bottom: 20px;}
     
     div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, .stSelectbox > div {
         background-color: #ffffff !important; border: 1px solid #dcdde1 !important; border-radius: 8px !important;
@@ -37,16 +37,18 @@ st.markdown("""
     .stButton > button:hover { background-color: #d4af37 !important; color: #0a192f !important; }
     
     .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #0a192f; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-right: 5px solid #d4af37; }
+    
+    /* منع تكدس الأزرار السفلية في شاشات الجوال */
+    div[data-testid="stHorizontalBlock"] {
+        flex-wrap: nowrap !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. القاموس المنهجي الكامل (25 تقرير - 250 سؤال)
+# 2. القاموس المنهجي الكامل (مثبت ولن يمس)
 # ==========================================
 methodology_db = {
-    # ----------------------------------------
-    # المسار الأول: الرقابة والامتثال (ISO 19011)
-    # ----------------------------------------
     "مسار الرقابة والامتثال (ISO 19011)": {
         "تقرير النزول الميداني الفني": [
             ("المرحلة التشغيلية للموقع:", "مثال: مرحلة التجهيزات الإنشائية"),
@@ -109,10 +111,6 @@ methodology_db = {
             ("القرار الإلزامي للسلامة:", "مثال: إيقاف الورشة حتى توفير النظارات")
         ]
     },
-
-    # ----------------------------------------
-    # المسار الثاني: الأثر والتقييم (Kirkpatrick & SROI)
-    # ----------------------------------------
     "مسار الأثر والتقييم (Kirkpatrick)": {
         "تقرير تقييم أثر التدريب والتمكين": [
             ("مستوى الرضا (Reaction):", "مثال: تقييم المتدربين 9/10"),
@@ -175,10 +173,6 @@ methodology_db = {
             ("خطة تحسين الخدمة:", "مثال: تفعيل نظام رد آلي للشكاوى وزيادة المنافذ")
         ]
     },
-
-    # ----------------------------------------
-    # المسار الثالث: الاستراتيجية والمخاطر (ISO 31000)
-    # ----------------------------------------
     "مسار الاستراتيجية والمخاطر": {
         "دراسة جدوى ومصفوفة مخاطر": [
             ("الفرصة السوقية المستهدفة:", "مثال: مركز صيانة أجهزة طبية"),
@@ -241,10 +235,6 @@ methodology_db = {
             ("قرار الجاهزية:", "مثال: المؤسسة جاهزة بنسبة 60%، يجب تأجيل الإطلاق لشهرين للتدريب")
         ]
     },
-
-    # ----------------------------------------
-    # المسار الرابع: العمليات والإنتاجية (Lean & Six Sigma)
-    # ----------------------------------------
     "مسار العمليات والإنتاجية (Lean)": {
         "تقرير الإنجاز الدوري (أسبوعي/شهري)": [
             ("المستهدفات التشغيلية المعتمدة:", "مثال: حفر 500 متر من الأساسات"),
@@ -307,10 +297,6 @@ methodology_db = {
             ("القرارات التحفيزية أو التصحيحية:", "مثال: صرف مكافأة تميز لفريق إغلاق التذاكر، وتعيين موظف ليلي")
         ]
     },
-
-    # ----------------------------------------
-    # المسار الخامس: العلاقات والهوية (IPRA)
-    # ----------------------------------------
     "مسار العلاقات وصورة المؤسسة (PR & Visibility)": {
         "تقرير التغطية الإعلامية وتحليل السمعة": [
             ("الرسالة الاستراتيجية المستهدفة:", "مثال: إبراز دور المؤسسة في الإغاثة الطارئة"),
@@ -376,7 +362,7 @@ methodology_db = {
 }
 
 # ==========================================
-# 3. إدارة حالة الجلسة والتنقل السفلي (Bottom Nav Logic)
+# 3. إدارة حالة الجلسة والتنقل
 # ==========================================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'current_page' not in st.session_state: st.session_state.current_page = "login"
@@ -459,8 +445,12 @@ def platform_page():
             st.error("⚠️ يرجى استكمال بيانات غلاف الوثيقة الإدارية في الأعلى.")
         else:
             try:
+                # [إصلاح مشكلة الـ 404 بتحديث اسم النموذج إلى gemini-1.5-pro-latest]
                 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-                model = genai.GenerativeModel('gemini-1.5-pro')
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-pro-latest')
+                except:
+                    model = genai.GenerativeModel('gemini-pro') # خط رجعة في حال كان الحساب لا يدعم 1.5
                 
                 data_feed = "\n".join([f"- {k} {v}" for k, v in answers.items() if v])
                 if extra_answers:
@@ -547,7 +537,7 @@ def contact_page():
     st.markdown('<div class="card-box">', unsafe_allow_html=True)
     st.markdown("لطلب أكواد التفعيل، الاستشارات الاستراتيجية، أو طلب بناء نماذج خاصة بمؤسستك:")
     st.markdown(f"""
-        <a href="https://wa.me/967774575749" class="whatsapp-btn">
+        <a style="display: block; background-color: #25D366; color: white !important; text-align: center; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 18px; margin-top: 20px;" href="https://wa.me/967774575749">
             💬 اضغط هنا لمراسلتنا عبر واتساب (774575749)
         </a>
     """, unsafe_allow_html=True)
