@@ -10,11 +10,10 @@ import io
 # ==========================================
 st.set_page_config(
     page_title="المنصور الاستراتيجية | إدارة التقارير السيادية",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# كود CSS لتنظيف الواجهة وإخفاء أدوات Streamlit وفرد الهوية البصرية
+# كود CSS لتنظيف الواجهة وتنسيقها للجوال
 clean_ui_css = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
@@ -31,7 +30,7 @@ clean_ui_css = """
     h1, h2, h3 { color: #D4AF37 !important; text-align: right !important; direction: rtl !important; }
     .stMarkdown, label, .stRadio, p, .stSelectbox { text-align: right !important; direction: rtl !important; color: #ffffff !important; }
     
-    /* تنسيق الحقول */
+    /* تنسيق الحقول والقوائم المنسدلة */
     div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, div[data-baseweb="select"] > div {
         background-color: #1a1a1a !important;
         border: 1px solid #D4AF37 !important;
@@ -48,10 +47,8 @@ clean_ui_css = """
         border: none !important;
         padding: 15px !important;
         font-size: 18px !important;
+        margin-top: 20px !important;
     }
-    
-    /* اللوحة الجانبية */
-    [data-testid="stSidebar"] { background-color: #111111 !important; border-left: 2px solid #D4AF37 !important; }
 </style>
 """
 st.markdown(clean_ui_css, unsafe_allow_html=True)
@@ -118,18 +115,16 @@ def create_docx(text, title):
     return bio.getvalue()
 
 # ==========================================
-# 4. بناء الواجهة الشجرية (UI)
+# 4. بناء الواجهة الرئيسية (التوجيه المباشر)
 # ==========================================
-with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Gold_Star_Solid.svg/1024px-Gold_Star_Solid.svg.png", width=60)
-    st.header("إدارة المسارات")
-    # الشجرة: اختيار المسار ثم التقرير
-    pillar = st.selectbox("1. حدد المسار الاستراتيجي:", list(reports_tree.keys()))
-    report_type = st.selectbox("2. حدد نوع الوثيقة:", list(reports_tree[pillar].keys()))
-    st.markdown("---")
-    st.caption("منصة المنصور الاستراتيجية V2.0")
-
 st.title("المنصور الاستراتيجية")
+st.markdown("### 🏛️ توجيه المسار التنفيذي")
+
+# نقلنا القوائم من الجانب إلى الواجهة الرئيسية
+pillar = st.selectbox("1. حدد المسار الاستراتيجي أولاً:", list(reports_tree.keys()))
+report_type = st.selectbox("2. حدد نوع الوثيقة المطلوبة:", list(reports_tree[pillar].keys()))
+
+st.markdown("---")
 st.subheader(f"غرفة الاستنطاق: {report_type}")
 st.markdown("---")
 
@@ -137,24 +132,22 @@ st.markdown("---")
 answers = {}
 questions = reports_tree[pillar][report_type]
 
-# توزيع الأسئلة في أعمدة لتقليل التشتت
-col1, col2 = st.columns(2)
 for i, q in enumerate(questions):
-    with col1 if i % 2 == 0 else col2:
-        if "مسببات" in q or "التوجيهات" in q or "الأثر" in q or "الدروس" in q:
-            answers[q] = st.text_area(f"{i+1}. {q}", height=100)
-        else:
-            answers[q] = st.text_input(f"{i+1}. {q}")
+    if "مسببات" in q or "التوجيهات" in q or "الأثر" in q or "الدروس" in q or "الفجوات" in q:
+        answers[q] = st.text_area(f"{i+1}. {q}", height=100)
+    else:
+        answers[q] = st.text_input(f"{i+1}. {q}")
 
 st.markdown("---")
 
 # ==========================================
 # 5. محرك التوليد (The Secret Engine)
 # ==========================================
-if st.button("توليد واعتِماد الوثيقة السيادية"):
-    # محاولة جلب المفتاح من الخزنة السرية
+if st.button("توليد واعتماد الوثيقة السيادية"):
     try:
+        # استدعاء المفتاح من خزنة الأسرار
         api_key = st.secrets["GEMINI_API_KEY"]
+        
         if not any(answers.values()):
             st.warning("تنبيه: يرجى تقديم بيانات استقصائية ليتمكن المحرك من التحليل.")
         else:
@@ -166,7 +159,7 @@ if st.button("توليد واعتِماد الوثيقة السيادية"):
                 prompt = f"""
                 بصفتك مستشاراً تنفيذياً خبيراً، صغ {report_type} بأسلوب سيادي، فخم، ومقتضب.
                 استخدم لغة الأرقام والنتائج فقط. تجنب العبارات الإنشائية. 
-                نظم الوثيقة في أقسام احترافية واضحة.
+                نظم الوثيقة في أقسام احترافية واضحة تعكس الجدية.
                 البيانات المستخلصة:
                 {context}
                 """
@@ -177,7 +170,7 @@ if st.button("توليد واعتِماد الوثيقة السيادية"):
                 st.success("تم التوليد بنجاح.")
                 st.info(report_text)
                 
-                # تحميل الملف
+                # إعداد التنزيل
                 file_data = create_docx(report_text, report_type)
                 st.download_button(
                     label="تحميل الوثيقة الرسمية (Word)",
@@ -186,6 +179,6 @@ if st.button("توليد واعتِماد الوثيقة السيادية"):
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 )
     except KeyError:
-        st.error("خطأ في النظام: لم يتم العثور على مفتاح API في خزنة الأسرار (Secrets).")
+        st.error("خطأ في النظام: لم يتم العثور على مفتاح API في خزنة الأسرار (Secrets). يرجى إضافته من إعدادات المنصة السحابية.")
     except Exception as e:
         st.error(f"فشل في الاتصال بالمحرك الذكي: {e}")
