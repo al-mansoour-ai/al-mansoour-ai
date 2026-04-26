@@ -11,17 +11,17 @@ import uuid
 # ==========================================
 st.set_page_config(page_title="منصة المنصور الاستراتيجية", layout="wide", initial_sidebar_state="collapsed")
 
-if 'device_id' not in st.session_state:
-    st.session_state.device_id = str(uuid.getnode())
+# بصمة الجهاز والأرصدة والأكواد (نظام حقيقي)
+if 'device_id' not in st.session_state: st.session_state.device_id = str(uuid.getnode())
+if 'user_balance' not in st.session_state: st.session_state.user_balance = 0
+if 'valid_codes' not in st.session_state: st.session_state.valid_codes = {"MANSOUR_VIP_2026": 100} # كود ماستر للتجربة
 
-# كود CSS المطور لشاشات الجوال والشريط السفلي الثابت
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
     #MainMenu, footer, header {visibility: hidden;}
     
-    /* ترك مساحة في أسفل التطبيق كي لا يغطي الشريط السفلي على المحتوى */
-    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 40px; }
+    html, body, .stApp { background-color: #f4f6f9 !important; font-family: 'Cairo', sans-serif !important; padding-bottom: 60px; }
     
     h1, h2, h3, h4, p, span, div, label, li { 
         text-align: right !important; direction: rtl !important; color: #0a192f !important;
@@ -32,6 +32,7 @@ st.markdown("""
         background-color: #ffffff !important; border: 1px solid #dcdde1 !important; border-radius: 8px !important;
     }
     
+    /* أزرار الواجهة العادية */
     .stButton > button { 
         background-color: #0a192f !important; color: #d4af37 !important; 
         font-weight: 700 !important; border-radius: 8px !important; width: 100% !important; padding: 12px !important;
@@ -41,58 +42,52 @@ st.markdown("""
     
     .card-box { background: white; padding: 20px; border-radius: 12px; border: 1px solid #0a192f; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-right: 5px solid #d4af37; }
     
-    /* أزرار الواتساب المصغرة تحت الباقات */
     .whatsapp-btn-small {
         display: block; background-color: #25D366; color: white !important; text-align: center; 
         padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; margin-top: 15px; border: none;
     }
     
     /* ========================================= */
-    /* كود تثبيت شريط التنقل السفلي لشاشات الجوال */
+    /* إصلاح شريط التنقل السفلي للأزرار */
     /* ========================================= */
     div[data-testid="stHorizontalBlock"]:last-of-type {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100vw;
-        background-color: #ffffff;
-        z-index: 99999;
-        padding: 10px 5px 15px 5px;
-        box-shadow: 0px -3px 15px rgba(0, 0, 0, 0.1);
+        position: fixed; bottom: 0; left: 0; width: 100vw;
+        background-color: #ffffff; z-index: 99999;
+        padding: 10px; box-shadow: 0px -3px 15px rgba(0, 0, 0, 0.1);
         border-top: 2px solid #d4af37;
-        flex-wrap: nowrap !important; /* يجبر الأزرار على البقاء في سطر واحد */
-        justify-content: space-between !important;
-        gap: 5px !important;
-        margin: 0 !important;
+        flex-wrap: nowrap !important; justify-content: space-between !important;
+        gap: 5px !important; margin: 0 !important;
     }
     
-    /* ضبط حجم الأزرار الأربعة في الشريط السفلي */
     div[data-testid="stHorizontalBlock"]:last-of-type > div {
-        min-width: 0 !important;
-        width: 25% !important;
+        min-width: 0 !important; width: 33.33% !important;
     }
     
+    /* جعل أزرار التنقل السفلية فاتحة بخط داكن وواضح */
     div[data-testid="stHorizontalBlock"]:last-of-type button {
         height: 45px !important;
-        font-size: 12px !important;
-        padding: 0 !important;
-        border-radius: 8px !important;
         background-color: #f4f6f9 !important;
-        color: #0a192f !important;
         border: 1px solid #dcdde1 !important;
     }
-    
+    div[data-testid="stHorizontalBlock"]:last-of-type button p {
+        color: #0a192f !important; /* لون النص كحلي واضح */
+        font-weight: bold !important;
+        font-size: 14px !important;
+        margin: 0 !important;
+    }
     div[data-testid="stHorizontalBlock"]:last-of-type button:hover, 
     div[data-testid="stHorizontalBlock"]:last-of-type button:active {
         background-color: #0a192f !important;
-        color: #d4af37 !important;
-        border: 1px solid #d4af37 !important;
+    }
+    div[data-testid="stHorizontalBlock"]:last-of-type button:hover p, 
+    div[data-testid="stHorizontalBlock"]:last-of-type button:active p {
+        color: #d4af37 !important; /* يتحول لذهبي عند الضغط */
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. القاموس المنهجي الكامل (25 تقرير - 250 سؤال - مثبت لا يمس)
+# 2. القاموس المنهجي الكامل (25 تقرير - 250 سؤال)
 # ==========================================
 methodology_db = {
     "مسار الرقابة والامتثال (ISO 19011)": {
@@ -408,7 +403,7 @@ methodology_db = {
 }
 
 # ==========================================
-# 3. إدارة حالة الجلسة والتنقل
+# 3. إدارة حالة الجلسة والتنقل (Session State)
 # ==========================================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if 'current_page' not in st.session_state: st.session_state.current_page = "login"
@@ -428,7 +423,6 @@ def login_page():
     st.info(f"الجهاز مسجل ومحمي بالمعرف: {st.session_state.device_id[-6:]}")
     
     user_id = st.text_input("أدخل رقم الجوال أو البريد الإلكتروني للمتابعة:")
-    
     if st.button("تسجيل الدخول", use_container_width=True):
         if user_id:
             st.session_state.logged_in = True
@@ -441,7 +435,7 @@ def login_page():
 
 def platform_page():
     st.title("المنصور الاستراتيجية")
-    st.markdown(f"**المستشار التنفيذي:** {st.session_state.user_id}")
+    st.markdown(f"**رصيدك الحالي:** {st.session_state.user_balance} تقارير | **المستخدم:** {st.session_state.user_id}")
     st.markdown("---")
     
     st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
@@ -487,15 +481,17 @@ def platform_page():
     st.markdown("<br>", unsafe_allow_html=True)
     
     if st.button("اعتماد وتوليد الوثيقة السيادية"):
-        if not (org_name and proj_name and author_name):
+        if st.session_state.user_balance <= 0:
+            st.error("⚠️ رصيدك (0). يرجى التوجه لصفحة 'الباقات' لشحن الرصيد أولاً.")
+        elif not (org_name and proj_name and author_name):
             st.error("⚠️ يرجى استكمال بيانات غلاف الوثيقة الإدارية في الأعلى.")
         else:
             try:
-                genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY_HERE"))
                 try:
                     model = genai.GenerativeModel('gemini-1.5-pro-latest')
                 except:
-                    model = genai.GenerativeModel('gemini-pro') 
+                    model = genai.GenerativeModel('gemini-pro')
                 
                 data_feed = "\n".join([f"- {k} {v}" for k, v in answers.items() if v])
                 if extra_answers:
@@ -521,9 +517,12 @@ def platform_page():
                 4. اذكر التوصيات والمرفقات في النهاية بشكل مرتب.
                 """
                 
-                with st.spinner("جاري صهر البيانات في القالب العالمي..."):
+                with st.spinner("جاري صهر البيانات وتوليد الوثيقة السيادية..."):
                     response = model.generate_content(prompt)
-                    st.success("تم الاعتماد والمطابقة بنجاح.")
+                    
+                    # خصم الرصيد بعد النجاح فقط
+                    st.session_state.user_balance -= 1 
+                    st.success(f"تم الاعتماد والمطابقة بنجاح. تم خصم تقرير من رصيدك (المتبقي: {st.session_state.user_balance}).")
                     st.info(response.text)
                     
                     doc = Document()
@@ -542,26 +541,17 @@ def platform_page():
 def packages_page():
     st.title("💳 باقات الاشتراك وتفعيل الرصيد")
     
-    # باقة المنجز
     st.markdown("""
     <div class="card-box">
         <h3 style="color:#0a192f;">باقة المنجز (3 تقارير)</h3>
         <p>تناسب المهام السريعة والتقارير الفردية.<br><b style="color:#d4af37;">السعر: 10,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة المنجز بقيمة 10,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الباقة عبر واتساب</a>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة المنجز بقيمة 10,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
     </div>
-    """, unsafe_allow_html=True)
-    
-    # باقة الخبير
-    st.markdown("""
     <div class="card-box">
         <h3 style="color:#0a192f;">باقة الخبير (10 تقارير)</h3>
         <p>الخيار الأفضل لمديري المشاريع والفرق الميدانية.<br><b style="color:#d4af37;">السعر: 25,000 ريال يمني</b></p>
-        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة الخبير بقيمة 25,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الباقة عبر واتساب</a>
+        <a href="https://wa.me/967774575749?text=مرحباً، أريد الاشتراك في باقة الخبير بقيمة 25,000 ريال" class="whatsapp-btn-small" target="_blank">📱 اطلب الكود عبر واتساب</a>
     </div>
-    """, unsafe_allow_html=True)
-    
-    # الباقة السيادية
-    st.markdown("""
     <div class="card-box">
         <h3 style="color:#0a192f;">الباقة السيادية المؤسسية (مفتوح)</h3>
         <p>للمنظمات، مع إضافة مسارات مخصصة ودعم فني على مدار الساعة.<br><b style="color:#d4af37;">السعر: تواصل معنا لتحديد العرض</b></p>
@@ -571,29 +561,45 @@ def packages_page():
     
     st.markdown("---")
     st.subheader("تفعيل باقة جديدة")
-    act_code = st.text_input("أدخل كود الشحن الذي استلمته:")
+    act_code = st.text_input("أدخل كود الشحن الذي استلمته من الإدارة:")
     if st.button("تفعيل الرصيد"):
-        if act_code:
-            st.success("تم الشحن بنجاح! رصيدك الآن مفعل للتقارير العالمية.")
+        if act_code in st.session_state.valid_codes:
+            # إضافة الرصيد وحذف الكود لمنع استخدامه مرة أخرى
+            added_reports = st.session_state.valid_codes.pop(act_code)
+            st.session_state.user_balance += added_reports
+            st.success(f"تم الشحن بنجاح! تمت إضافة {added_reports} تقارير. رصيدك الكلي: {st.session_state.user_balance}")
         else:
-            st.error("يرجى إدخال الكود أولاً.")
+            st.error("الكود غير صحيح أو تم استخدامه مسبقاً. تأكد من الإدارة.")
 
 def admin_page():
     st.markdown('<div class="card-box">', unsafe_allow_html=True)
     st.title("🛠️ لوحة تحكم الإدارة (توليد الأكواد)")
+    # التحقق الحقيقي من كلمة السر (يمكنك وضعها في st.secrets لاحقاً)
     pw = st.text_input("كلمة السر الإدارية:", type="password")
-    if pw == "MANSOUR_ADMIN_2026":
+    
+    # الرمز السري الحقيقي للإدارة (قم بتغييره متى شئت)
+    if pw == "Mansour@2026":
         st.success("تم تأكيد الهوية. مرحباً بك سعادة المستشار.")
-        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["منجز - 3 تقارير", "خبير - 10 تقارير", "سيادي - مفتوح"])
+        pack_type = st.selectbox("اختر نوع الباقة لتوليد الكود:", ["منجز (3 تقارير)", "خبير (10 تقارير)", "سيادي (100 تقرير)"])
+        
         if st.button("توليد كود التفعيل"):
             new_code = f"MS-{uuid.uuid4().hex[:6].upper()}"
+            if "منجز" in pack_type:
+                st.session_state.valid_codes[new_code] = 3
+            elif "خبير" in pack_type:
+                st.session_state.valid_codes[new_code] = 10
+            elif "سيادي" in pack_type:
+                st.session_state.valid_codes[new_code] = 100
+                
             st.info(f"الكود الجديد الجاهز للعميل: **{new_code}**")
+            st.write("أرسل هذا الكود للعميل بعد استلام الحوالة، ليقوم بإدخاله في صفحة الباقات.")
+    elif pw:
+        st.error("كلمة السر غير صحيحة.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 # 5. محرك توجيه الصفحات وشريط التنقل السفلي
 # ==========================================
-
 if st.session_state.current_page == "login":
     login_page()
 else:
@@ -602,11 +608,11 @@ else:
     elif st.session_state.current_page == "packages": packages_page()
     elif st.session_state.current_page == "admin": admin_page()
 
-    # شريط التنقل السفلي الثابت (يُرسم دائماً في آخر الكود)
+    # شريط التنقل السفلي الثابت والأفقي (الترتيب الطبيعي)
     nav1, nav2, nav3 = st.columns(3)
     with nav1:
-        if st.button("🛠️ الإدارة"): change_page("admin")
+        if st.button("🏠 المنصة"): change_page("platform")
     with nav2:
         if st.button("💳 الباقات"): change_page("packages")
     with nav3:
-        if st.button("🏛️ المنصة"): change_page("platform")
+        if st.button("🛠️ الإدارة"): change_page("admin")
