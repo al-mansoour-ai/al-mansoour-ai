@@ -205,4 +205,157 @@ def login_page():
                         st.rerun()
 
 def platform_page():
-    email = st.session_state
+    email = st.session_state.user_email
+    balance = db["users"][email]["balance"]
+    st.title("المنصة السيادية")
+    st.info(f"المستشار: **{email}** | الرصيد: **{balance} تقارير**")
+
+    # بيانات الغلاف
+    st.markdown("### 🏛️ بيانات الغلاف (الإدارية)")
+    org = st.text_input("الجهة المصدرة:", value=get_draft("org_name"))
+    update_draft("org_name", org)
+    loc = st.text_input("النطاق الجغرافي:", value=get_draft("loc_name"))
+    update_draft("loc_name", loc)
+    proj = st.text_input("اسم المشروع:", value=get_draft("proj_name"))
+    update_draft("proj_name", proj)
+    author = st.text_input("إعداد (الاسم والمنصب):", value=get_draft("author_name"))
+    update_draft("author_name", author)
+
+    st.markdown("---")
+    pillar = st.selectbox("1. حدد المسار الاستراتيجي:", list(methodology_db.keys()))
+    report_type = st.selectbox("2. حدد التقرير المنهجي:", list(methodology_db[pillar].keys()))
+    
+    if st.session_state.current_report != report_type:
+        st.session_state.current_report, st.session_state.step = report_type, 1
+        st.session_state.report_preview = ""
+    
+    questions = methodology_db[pillar][report_type]
+    
+    # === الخطوات الثلاث ===
+    if st.session_state.step == 1:
+        st.markdown('<h4>📍 المرحلة 1: التشخيص والمطابقة</h4>', unsafe_allow_html=True)
+        for i, (q, ex) in enumerate(questions[:3]):
+            st.markdown(f"<span class='example-guide'>{ex}</span>", unsafe_allow_html=True)
+            ans = st.text_area(f"**{i+1}. {q}**", value=get_draft(f"q_{report_type}_{i}"), key=f"k1_{i}")
+            update_draft(f"q_{report_type}_{i}", ans)
+        if st.button("التالي ⬅️"): st.session_state.step = 2; st.rerun()
+
+    elif st.session_state.step == 2:
+        st.markdown('<h4>📊 المرحلة 2: تحليل الأسباب الجذرية</h4>', unsafe_allow_html=True)
+        for i, (q, ex) in enumerate(questions[3:7]):
+            idx = i + 3
+            st.markdown(f"<span class='example-guide'>{ex}</span>", unsafe_allow_html=True)
+            ans = st.text_area(f"**{idx+1}. {q}**", value=get_draft(f"q_{report_type}_{idx}"), key=f"k2_{idx}")
+            update_draft(f"q_{report_type}_{idx}", ans)
+        if st.button("التالي ⬅️"): st.session_state.step = 3; st.rerun()
+        if st.button("➡️ رجوع للسابق"): st.session_state.step = 1; st.rerun()
+
+    elif st.session_state.step == 3:
+        st.markdown('<h4>🎯 المرحلة 3: صناعة القرار والاعتماد</h4>', unsafe_allow_html=True)
+        for i, (q, ex) in enumerate(questions[7:]):
+            idx = i + 7
+            st.markdown(f"<span class='example-guide'>{ex}</span>", unsafe_allow_html=True)
+            ans = st.text_area(f"**{idx+1}. {q}**", value=get_draft(f"q_{report_type}_{idx}"), key=f"k3_{idx}")
+            update_draft(f"q_{report_type}_{idx}", ans)
+        
+        recs = st.text_area("توصياتك السيادية الموجهة للإدارة العليا:", value=get_draft(f"recs_{report_type}"))
+        update_draft(f"recs_{report_type}", recs)
+        
+        if st.button("اعتماد وتوليد الوثيقة السيادية 📄"):
+            if balance <= 0: st.error("⚠️ رصيدك صفر. يرجى الشحن من صفحة الباقات.")
+            else:
+                try:
+                    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+                    # حل مشكلة الـ 404 والـ 429 بذكاء (البحث عن أي محرك متاح)
+                    available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+                    target_model = 'models/gemini-1.5-flash' if 'models/gemini-1.5-flash' in available_models else available_models[0]
+                    model = genai.GenerativeModel(target_model)
+                    
+                    data_summary = "".join([f"- {q}: {get_draft(f'q_{report_type}_{i}')}\n" for i, (q, _) in enumerate(questions)])
+                    prompt = f"أنت مستشار استراتيجي سيادي خبير. صغ تقريراً استشارياً لـ '{report_type}' لجهة '{org}' مشروع '{proj}' بنطاق '{loc}'. البيانات: {data_summary}. التوصيات: {recs}. اللغة: رسمية، رصينة، نقاط مباشرة."
+                    with st.spinner("المحرك الذكي يقوم بالصياغة الاستشارية..."):
+                        try: res = model.generate_content(prompt)
+                        except: time.sleep(3); res = model.generate_content(prompt)
+                        st.session_state.report_preview = res.text
+                        db["users"][email]["balance"] -= 1
+                        save_db(db)
+                        st.success("تم الاعتماد بنجاح!")
+                except Exception as e: st.error(f"عطل فني في جوجل: {e}")
+        if st.button("➡️ رجوع للسابق"): st.session_state.step = 2; st.rerun()
+
+    if st.session_state.report_preview:
+        st.markdown("### 📄 معاينة الوثيقة السيادية")
+        st.info(st.session_state.report_preview)
+        doc = Document()
+        doc.add_heading(report_type, 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
+        for line in st.session_state.report_preview.split('\n'):
+            if line.strip(): doc.add_paragraph(line.strip()).alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        bio = io.BytesIO(); doc.save(bio)
+        st.download_button("⬇️ تحميل (Word)", bio.getvalue(), file_name=f"{proj}.docx")
+
+def packages_page():
+    st.title("💳 باقات الاشتراك الذكية")
+    st.info("اختر الباقة، اطلب الكود عبر الواتساب، ثم فعل رصيدك هنا.")
+    pkgs = [
+        {"n": "البداية (3 تقارير)", "p": "1,000 ريال", "m": "أريد كود باقة البداية (1000 ريال)"},
+        {"n": "التمكين (6 تقارير)", "p": "1,500 ريال", "m": "أريد كود باقة التمكين (1500 ريال)"},
+        {"n": "التنفيذية (12 تقرير)", "p": "2,500 ريال", "m": "أريد كود الباقة التنفيذية (2500 ريال)"}
+    ]
+    cols = st.columns(3)
+    for i, pkg in enumerate(pkgs):
+        with cols[i]:
+            st.markdown(f"""
+            <div class="card-box" style="text-align:center;">
+                <h3>{pkg['n']}</h3>
+                <h2 style="color:#d4af37;">{pkg['p']}</h2>
+                <hr>
+                <a href="https://wa.me/967774575749?text={pkg['m']}" style="text-decoration:none;">
+                    <div style="background-color:#25D366; color:white; padding:12px; border-radius:8px; font-weight:bold;">📱 اطلب الكود الآن</div>
+                </a>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    code_input = st.text_input("أدخل كود الشحن المستلم:")
+    if st.button("تفعيل كود الشحن"):
+        if code_input in db["codes"]:
+            val = db["codes"].pop(code_input)
+            db["users"][st.session_state.user_email]["balance"] += val
+            save_db(db)
+            st.success(f"✅ تم تفعيل {val} تقارير بنجاح!")
+            time.sleep(2); st.rerun()
+        else: st.error("الكود غير صحيح.")
+
+def admin_page():
+    st.title("🛠️ لوحة الإدارة السيادية")
+    pw = st.text_input("الرمز السري للإدارة:", type="password")
+    if pw == "Mansour@2026":
+        st.success("مرحباً بك مستشار منصور")
+        num = st.selectbox("عدد التقارير للكود:", [3, 6, 12])
+        if st.button("توليد كود جديد للعميل"):
+            c = f"MS-{uuid.uuid4().hex[:6].upper()}"
+            db["codes"][c] = num
+            save_db(db)
+            st.info(f"كود التفعيل: **{c}**")
+        st.write("إحصائيات المستخدمين:", db["users"])
+
+# ==========================================
+# 6. شريط التنقل السفلي (The Fixed Bottom Nav)
+# ==========================================
+def navigate(target):
+    st.session_state.current_page = target
+    st.rerun()
+
+if not st.session_state.logged_in:
+    login_page()
+else:
+    if st.session_state.current_page == "platform": platform_page()
+    elif st.session_state.current_page == "packages": packages_page()
+    elif st.session_state.current_page == "admin": admin_page()
+
+    # رسم الشريط السفلي الثابت (3 أزرار)
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    nav1, nav2, nav3 = st.columns(3)
+    with nav1: st.button("🏠 المنصة", on_click=navigate, args=("platform",))
+    with nav2: st.button("💳 الباقات", on_click=navigate, args=("packages",))
+    with nav3: st.button("🛠️ الإدارة", on_click=navigate, args=("admin",))
+
