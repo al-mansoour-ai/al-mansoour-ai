@@ -384,4 +384,280 @@ methodology_db = {
             ("الدروس المستفادة للفعاليات القادمة:", "مثال: التأكيد المسبق على كبار الضيوف بالموعد بدقة لتجنب التأخير")
         ],
         "تقرير المسؤولية المجتمعية (CSR)": [
-            ("اسم المبادرة المجتمعية:", "مثال: مبادرة 'شتاء دافئ' لكسوة الأيت
+            ("اسم المبادرة المجتمعية:", "مثال: مبادرة 'شتاء دافئ' لكسوة الأيتام"),
+            ("الفئة المستفيدة والموقع الجغرافي:", "مثال: 500 يتيم في مخيمات النزوح بمارب"),
+            ("حجم المساهمة المالية/العينية للمؤسسة:", "مثال: توزيع بطانيات وملابس بقيمة 15,000 دولار"),
+            ("الأثر المجتمعي المباشر:", "مثال: حماية الأطفال من موجات البرد والأمراض المصاحبة"),
+            ("مستوى التفاعل والمشاركة التطوعية للموظفين:", "مثال: شارك 20 موظفاً في عملية التغليف والتوزيع طوعياً"),
+            ("الشركاء المحليون في المبادرة:", "مثال: التنسيق مع الوحدة التنفيذية للنازحين لتحديد الأسماء"),
+            ("التغطية الإعلامية وصورة المؤسسة الإنسانية:", "مثال: تغطية واسعة عكست الوجه الإنساني للشركة بنجاح"),
+            ("ردود أفعال المجتمع والجهات الحكومية:", "مثال: إشادة رسمية من محافظ المحافظة بجهود المؤسسة"),
+            ("مدى ارتباط المبادرة بأهداف التنمية المستدامة (SDGs):", "مثال: تخدم الهدف الأول 'القضاء على الفقر'"),
+            ("اقتراح للمبادرة المجتمعية القادمة:", "مثال: رعاية بطولة رياضية للشباب لتعزيز الصحة والاندماج")
+        ],
+        "تقرير إدارة الأزمات الإعلامية": [
+            ("طبيعة الأزمة أو الشائعة المنتشرة:", "مثال: إشاعة بوجود مواد منتهية في السلال الغذائية الموزعة"),
+            ("منصة انطلاق الأزمة وحجم الانتشار:", "مثال: بدأت بجروب واتساب ثم انتقلت لفيسبوك محققة 5000 مشاركة"),
+            ("سرعة استجابة قسم العلاقات العامة (SLA):", "مثال: تم رصد الشائعة بعد 3 ساعات من إطلاقها (استجابة جيدة)"),
+            ("الإجراء الفوري لاحتواء الأزمة:", "مثال: إصدار بيان رسمي وتصوير فيديو مباشر من داخل المخازن"),
+            ("رسالة الرد الجوهرية (Counter-Message):", "مثال: إثبات صحة وتاريخ المواد وعرض شهادات الفحص المخبري"),
+            ("دور الشركاء والجهات الرسمية في الدعم:", "مثال: تصريح من مكتب الصحة يؤكد سلامة الإجراءات والمواد"),
+            ("تحليل نبرة الجمهور بعد التوضيح:", "مثال: تحول 90% من الهجوم إلى دعم ومساندة لشفافية المؤسسة"),
+            ("الأضرار المتبقية على السمعة المؤسسية:", "مثال: بعض الصفحات الوهمية لا زالت تروج للإشاعة (ضرر محدود)"),
+            ("تقييم أداء المتحدث الرسمي للمؤسسة:", "مثال: أداء واثق ومقنع ولم ينجر للاستفزاز"),
+            ("الخطة الوقائية لمنع تكرار الأزمة:", "مثال: طباعة تواريخ الصلاحية بخط بارز على الغلاف الخارجي وتوثيقها مسبقاً")
+        ],
+        "تقرير قياس العائد من الشراكات الاستراتيجية": [
+            ("الجهة الشريكة وطبيعة الشراكة:", "مثال: مذكرة تفاهم مع جامعة تعز لتدريب الخريجين"),
+            ("الأهداف المحددة في اتفاقية الشراكة:", "مثال: استيعاب 50 متدرباً وتوفير القاعات مجاناً للمؤسسة"),
+            ("حجم المنافع العائدة للمؤسسة (كمياً/نوعياً):", "مثال: توفير 3000$ من إيجار القاعات، ورفد المؤسسة بكوادر شابة"),
+            ("التزامات المؤسسة تجاه الشريك (ماذا قدمنا؟):", "مثال: تقديم خبراء لتدريس مساق الإدارة الحديثة في الجامعة"),
+            ("مستوى التنسيق والتواصل الإداري مع الشريك:", "مثال: تواصل سلس ومباشر عبر ضابط ارتباط مخصص"),
+            ("العوائق أو نقاط الخلاف في التنفيذ:", "مثال: تأخر الجامعة في إرسال كشوفات المتدربين عن الموعد المحدد"),
+            ("التأثير على السمعة والمكانة السوقية:", "مثال: تعزيز صورة المؤسسة كجهة علمية وراعية للشباب"),
+            ("التقييم المالي للشراكة (هل هي مربحة؟):", "مثال: الشراكة حققت وفراً مالياً ودعمت الموارد البشرية بشكل ممتاز"),
+            ("مستوى التزام الشريك بسرية المعلومات:", "مثال: التزام تام ببنود اتفاقية عدم الإفصاح (NDA)"),
+            ("توصية الإدارة العليا للتعاقد:", "مثال: تجديد الشراكة لمدة 3 سنوات إضافية وتوسيع النطاق ليشمل البحث العلمي")
+        ]
+    }
+}
+
+# ==========================================
+# 4. منطق الحفظ التلقائي الثابت
+# ==========================================
+def update_draft(key, value):
+    uid = st.session_state.user_id
+    if uid:
+        if "draft" not in db["users"][uid]: db["users"][uid]["draft"] = {}
+        db["users"][uid]["draft"][key] = value
+        save_db(db)
+
+def get_draft(key, default=""):
+    uid = st.session_state.user_id
+    if uid and uid in db["users"]:
+        return db["users"][uid].get("draft", {}).get(key, default)
+    return default
+
+# ==========================================
+# 5. صفحات النظام (UI Pages)
+# ==========================================
+def login_page():
+    st.markdown('<div class="card-box" style="margin-top:50px;">', unsafe_allow_html=True)
+    st.title("🔐 الدخول للمنصة السيادية")
+    uid = st.text_input("رقم الجوال (للدخول واستعادة التقارير):", placeholder="مثال: 774575749")
+    if st.button("دخول آمن للمنصة", key="login_btn"):
+        if uid:
+            if uid not in db["users"]:
+                db["users"][uid] = {"balance": 1, "draft": {}}
+                save_db(db)
+            st.session_state.user_id = uid
+            st.session_state.logged_in = True
+            st.session_state.current_page = "platform"
+            st.rerun()
+        else:
+            st.warning("يرجى إدخال رقم الجوال.")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def platform_page():
+    uid = st.session_state.user_id
+    balance = db["users"][uid]["balance"]
+    
+    st.title("المنصور الاستراتيجية")
+    st.info(f"المستشار: **{uid}** | الرصيد: **{balance} تقارير**")
+
+    st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
+    org = st.text_input("الجهة المصدرة للوثيقة:", value=get_draft("org_name"), placeholder="مؤسسة شباب اليمن للتنمية")
+    update_draft("org_name", org)
+    
+    loc = st.text_input("النطاق الجغرافي:", value=get_draft("loc_name"), placeholder="تعز - مديرية المظفر")
+    update_draft("loc_name", loc)
+    
+    proj = st.text_input("اسم المشروع / المهمة:", value=get_draft("proj_name"), placeholder="مشروع التدخل السريع")
+    update_draft("proj_name", proj)
+    
+    author = st.text_input("إعداد (الاسم والمنصب):", value=get_draft("author_name"), placeholder="منصور الوصابي - استشاري")
+    update_draft("author_name", author)
+
+    st.markdown("---")
+    
+    st.markdown("### 🔍 ثانياً: الاستنطاق المنهجي (العالمي)")
+    pillar = st.selectbox("1. المسار الاستراتيجي:", list(methodology_db.keys()))
+    report_type = st.selectbox("2. التقرير التخصصي:", list(methodology_db[pillar].keys()))
+    
+    if st.session_state.current_report != report_type:
+        st.session_state.current_report = report_type
+        st.session_state.step = 1
+        st.session_state.report_preview = ""
+    
+    questions = methodology_db[pillar][report_type]
+    
+    st.markdown(f"--- المرحلة الحالية: **{st.session_state.step} من 3** ---")
+    
+    # === المرحلة الأولى ===
+    if st.session_state.step == 1:
+        st.subheader("📍 المرحلة 1: التشخيص والمطابقة")
+        for i, (q, h) in enumerate(questions[:3]):
+            ans = st.text_area(f"{i+1}. {q}", value=get_draft(f"q_{report_type}_{i}"), placeholder=h, key=f"key_{report_type}_{i}")
+            update_draft(f"q_{report_type}_{i}", ans)
+            
+        if st.button("التالي: التحليل والأسباب ⬅️", key="btn_next_1"):
+            st.session_state.step = 2
+            st.rerun()
+
+    # === المرحلة الثانية ===
+    elif st.session_state.step == 2:
+        st.subheader("📊 المرحلة 2: التحليل والأسباب الجذرية")
+        for i, (q, h) in enumerate(questions[3:7]):
+            idx = i + 3
+            ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h, key=f"key_{report_type}_{idx}")
+            update_draft(f"q_{report_type}_{idx}", ans)
+            
+        if st.button("التالي: القرارات والاعتماد ⬅️", key="btn_next_2"):
+            st.session_state.step = 3
+            st.rerun()
+        if st.button("➡️ رجوع للسابق", key="btn_prev_2"):
+            st.session_state.step = 1
+            st.rerun()
+
+    # === المرحلة الثالثة ===
+    elif st.session_state.step == 3:
+        st.subheader("🎯 المرحلة 3: القرارات والاعتمادات")
+        for i, (q, h) in enumerate(questions[7:]):
+            idx = i + 7
+            ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h, key=f"key_{report_type}_{idx}")
+            update_draft(f"q_{report_type}_{idx}", ans)
+            
+        recs = st.text_area("التوصيات الختامية للإدارة العليا:", value=get_draft(f"recs_{report_type}"), key=f"recs_key_{report_type}")
+        update_draft(f"recs_{report_type}", recs)
+        
+        if st.button("اعتماد وتوليد الوثيقة السيادية 📄", key="btn_gen_3"):
+            if balance <= 0:
+                st.error("⚠️ رصيدك صفر. يرجى شحن الباقة.")
+            elif not (org and proj and author):
+                st.error("⚠️ يرجى استكمال بيانات الغلاف أولاً.")
+            else:
+                try:
+                    genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY"))
+                    
+                    # الاستكشاف الديناميكي الذكي للمحركات لتجنب الـ 404 نهائياً
+                    valid_model = None
+                    for m in genai.list_models():
+                        if 'generateContent' in m.supported_generation_methods:
+                            valid_model = m.name
+                            if '1.5-flash' in m.name: break # تفضيل المحرك الأسرع
+                            
+                    if not valid_model:
+                        st.error("⚠️ لا يوجد محرك نصوص متاح لمفتاح الـ API الخاص بك.")
+                    else:
+                        model = genai.GenerativeModel(valid_model)
+                        
+                        data_summary = ""
+                        for i, (q, _) in enumerate(questions):
+                            ans_val = get_draft(f"q_{report_type}_{i}")
+                            if ans_val: data_summary += f"- {q} {ans_val}\n"
+                        
+                        prompt = f"""
+                        أنت مستشار استراتيجي سيادي.
+                        صغ تقرير '{report_type}' لجهة '{org}' مشروع '{proj}' بنطاق '{loc}'.
+                        إعداد: {author}. التاريخ: {datetime.date.today().strftime("%Y-%m-%d")}.
+                        
+                        البيانات الميدانية:
+                        {data_summary}
+                        
+                        التوصيات: {recs}
+                        
+                        المطلوب تقرير تنفيذي قوي يحلل الفجوات والمخاطر ويصيغ قرارات، بلغة رصينة ومباشرة (بدون حشو).
+                        ابدأ بالغلاف، ثم الملخص التنفيذي، ثم التشخيص، ثم القرارات.
+                        """
+                        with st.spinner("المحرك الذكي يقوم بالصياغة..."):
+                            res = model.generate_content(prompt)
+                            st.session_state.report_preview = res.text
+                            db["users"][uid]["balance"] -= 1
+                            save_db(db)
+                            st.success("تم الاعتماد بنجاح! تم خصم تقرير من رصيدك.")
+                except Exception as e:
+                    st.error(f"خطأ تقني في الاتصال بجوجل: {e}")
+                    
+        if st.button("➡️ رجوع للسابق", key="btn_prev_3"):
+            st.session_state.step = 2
+            st.rerun()
+
+    if st.session_state.report_preview:
+        st.markdown("### 📄 معاينة الوثيقة")
+        st.info(st.session_state.report_preview)
+        doc = Document()
+        doc.add_heading(f"{org} | {report_type}", 0).alignment = WD_ALIGN_PARAGRAPH.CENTER
+        for line in st.session_state.report_preview.split('\n'):
+            if line.strip(): doc.add_paragraph(line.strip()).alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        bio = io.BytesIO()
+        doc.save(bio)
+        st.download_button("⬇️ تحميل (Word)", bio.getvalue(), file_name=f"{proj}.docx", key="btn_dl_word")
+
+def packages_page():
+    st.title("💳 باقات الاشتراك الذكية")
+    
+    st.markdown("""
+    <div class="card-box">
+        <h3 style="color:#0a192f;">باقة البداية (3 تقارير)</h3>
+        <p>لاختبار جودة التقارير والمهام السريعة.<br><b style="color:#d4af37;">السعر: 1,000 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=أريد باقة 3 تقارير (1000 ريال)" class="whatsapp-btn" target="_blank">طلب الكود</a>
+    </div>
+    <div class="card-box">
+        <h3 style="color:#0a192f;">باقة التمكين (6 تقارير)</h3>
+        <p>للمشاريع الدورية والمتابعة المستمرة.<br><b style="color:#d4af37;">السعر: 1,500 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=أريد باقة 6 تقارير (1500 ريال)" class="whatsapp-btn" target="_blank">طلب الكود</a>
+    </div>
+    <div class="card-box">
+        <h3 style="color:#0a192f;">الباقة التنفيذية (12 تقرير)</h3>
+        <p>للمنظمات والتقارير السيادية الشاملة.<br><b style="color:#d4af37;">السعر: 2,500 ريال يمني</b></p>
+        <a href="https://wa.me/967774575749?text=أريد باقة 12 تقرير (2500 ريال)" class="whatsapp-btn" target="_blank">طلب الكود</a>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    code = st.text_input("أدخل كود الشحن:", key="recharge_code")
+    if st.button("تفعيل الكود", key="btn_recharge"):
+        if code in db["codes"]:
+            val = db["codes"].pop(code)
+            db["users"][st.session_state.user_id]["balance"] += val
+            save_db(db)
+            st.success(f"تم الشحن بنجاح! الرصيد الحالي: {db['users'][st.session_state.user_id]['balance']}")
+        else:
+            st.error("الكود غير صحيح أو مستخدم مسبقاً.")
+
+def admin_page():
+    st.title("🛠️ لوحة تحكم الإدارة")
+    pw = st.text_input("رمز الدخول:", type="password", key="admin_pw")
+    if pw == "Mansour@2026":
+        st.success("مرحباً مستشار منصور")
+        pack = st.selectbox("نوع الباقة:", ["3 تقارير (1000 ريال)", "6 تقارير (1500 ريال)", "12 تقرير (2500 ريال)"], key="admin_pack")
+        if st.button("توليد كود للعميل", key="btn_gen_code"):
+            new_code = f"MS-{uuid.uuid4().hex[:6].upper()}"
+            if "3" in pack: db["codes"][new_code] = 3
+            elif "6" in pack: db["codes"][new_code] = 6
+            elif "12" in pack: db["codes"][new_code] = 12
+            save_db(db)
+            st.info(f"الكود: **{new_code}**")
+
+# ==========================================
+# 6. التوجيه والشريط السفلي (Bottom Nav)
+# ==========================================
+def change_pg(p):
+    st.session_state.current_page = p
+    st.rerun()
+
+if not st.session_state.logged_in:
+    login_page()
+else:
+    if st.session_state.current_page == "platform": platform_page()
+    elif st.session_state.current_page == "packages": packages_page()
+    elif st.session_state.current_page == "admin": admin_page()
+
+    # الشريط السفلي معزول لعدم التداخل
+    nav1, nav2, nav3 = st.columns(3)
+    with nav1:
+        if st.button("🏠 المنصة", key="nav_btn_1"): change_pg("platform")
+    with nav2:
+        if st.button("💳 الباقات", key="nav_btn_2"): change_pg("packages")
+    with nav3:
+        if st.button("🛠️ الإدارة", key="nav_btn_3"): change_pg("admin")
