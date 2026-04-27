@@ -46,25 +46,16 @@ st.markdown("""
     
     #MainMenu, footer, header {visibility: hidden;}
     
-    /* فرض الخط والاتجاه على كل شيء */
-    * {
-        font-family: 'Cairo', sans-serif !important;
-    }
+    * { font-family: 'Cairo', sans-serif !important; }
     
-    html, body, .stApp { 
-        background-color: #f8f9fa !important; 
-        padding-bottom: 90px; 
-    }
+    html, body, .stApp { background-color: #f8f9fa !important; padding-bottom: 90px; }
     
     h1, h2, h3, h4, p, span, div, label, li, input, textarea, select { 
-        text-align: right !important; 
-        direction: rtl !important; 
-        color: #2d3436 !important; 
+        text-align: right !important; direction: rtl !important; color: #2d3436 !important; 
     }
     
     h1, h2, h3 { color: #d4af37 !important; border-bottom: 1px solid #dfe6e9; padding-bottom: 10px; margin-bottom: 20px;}
     
-    /* تنسيق الحقول */
     div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, .stSelectbox > div {
         background-color: #ffffff !important; border: 1px solid #dfe6e9 !important; border-radius: 10px !important;
     }
@@ -73,7 +64,7 @@ st.markdown("""
     .stButton > button { 
         background-color: #0a192f !important; border: 1px solid #0a192f !important;
         border-radius: 10px !important; width: 100% !important; padding: 12px !important;
-        margin-bottom: 10px !important; /* مسافة بين الأزرار لمنع التلاصق */
+        margin-bottom: 10px !important; 
     }
     .stButton > button p, .stButton > button span { color: #ffffff !important; font-weight: 700 !important; font-size: 16px; }
     
@@ -82,7 +73,7 @@ st.markdown("""
     }
     .stButton > button:hover p, .stButton > button:active p { color: #000000 !important; }
 
-    /* الشريط السفلي (نمط واتساب) معزول تماماً */
+    /* الشريط السفلي (نمط احترافي معزول) */
     div[data-testid="stHorizontalBlock"]:last-of-type {
         position: fixed; bottom: 0; left: 0; width: 100vw;
         background-color: #f8f9fa !important; z-index: 99999;
@@ -94,7 +85,7 @@ st.markdown("""
         background-color: transparent !important; border: none !important; box-shadow: none !important; height: 50px !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button p {
-        color: #636e72 !important; font-size: 13px !important; font-weight: 600 !important;
+        color: #636e72 !important; font-size: 14px !important; font-weight: 600 !important;
     }
     div[data-testid="stHorizontalBlock"]:last-of-type button:active p, 
     div[data-testid="stHorizontalBlock"]:last-of-type button:hover p {
@@ -423,7 +414,7 @@ methodology_db = {
 }
 
 # ==========================================
-# 4. منطق الحفظ التلقائي (Drafting)
+# 4. منطق الحفظ التلقائي
 # ==========================================
 def update_draft(key, value):
     uid = st.session_state.user_id
@@ -465,7 +456,7 @@ def platform_page():
     st.title("المنصور الاستراتيجية")
     st.info(f"المستشار: **{uid}** | الرصيد: **{balance} تقارير**")
 
-    # بيانات الغلاف (ثابتة في كل المراحل ومحفوظة)
+    # بيانات الغلاف
     st.markdown("### 🏛️ أولاً: بيانات الغلاف (الإدارية)")
     org = st.text_input("الجهة المصدرة للوثيقة:", value=get_draft("org_name"), placeholder="مؤسسة شباب اليمن للتنمية")
     update_draft("org_name", org)
@@ -514,7 +505,7 @@ def platform_page():
             ans = st.text_area(f"{idx+1}. {q}", value=get_draft(f"q_{report_type}_{idx}"), placeholder=h, key=f"key_{report_type}_{idx}")
             update_draft(f"q_{report_type}_{idx}", ans)
             
-        # الأزرار مرصوصة رأسياً بوضوح
+        # الأزرار مرصوصة رأسياً بوضوح ومحمية بمفاتيح فريدة
         if st.button("التالي: القرارات والاعتماد ⬅️", key="btn_next_2"):
             st.session_state.step = 3
             st.rerun()
@@ -533,7 +524,7 @@ def platform_page():
         recs = st.text_area("التوصيات الختامية للإدارة العليا:", value=get_draft(f"recs_{report_type}"), key=f"recs_key_{report_type}")
         update_draft(f"recs_{report_type}", recs)
         
-        # الأزرار مرصوصة رأسياً
+        # الأزرار مرصوصة رأسياً ومحمية بمفاتيح
         if st.button("اعتماد وتوليد الوثيقة السيادية 📄", key="btn_gen_3"):
             if balance <= 0:
                 st.error("⚠️ رصيدك صفر. يرجى شحن الباقة.")
@@ -542,7 +533,11 @@ def platform_page():
             else:
                 try:
                     genai.configure(api_key=st.secrets.get("GEMINI_API_KEY", "YOUR_API_KEY"))
-                    model = genai.GenerativeModel('gemini-pro')
+                    # الحل الجذري للـ 404 هو استخدام gemini-1.5-flash
+                    try:
+                        model = genai.GenerativeModel('gemini-1.5-flash')
+                    except Exception:
+                        model = genai.GenerativeModel('gemini-1.0-pro')
                     
                     data_summary = ""
                     for i, (q, _) in enumerate(questions):
@@ -553,10 +548,14 @@ def platform_page():
                     أنت مستشار استراتيجي سيادي.
                     صغ تقرير '{report_type}' لجهة '{org}' مشروع '{proj}' بنطاق '{loc}'.
                     إعداد: {author}. التاريخ: {datetime.date.today().strftime("%Y-%m-%d")}.
+                    
                     البيانات الميدانية:
                     {data_summary}
+                    
                     التوصيات: {recs}
+                    
                     المطلوب تقرير تنفيذي قوي يحلل الفجوات والمخاطر ويصيغ قرارات، بلغة رصينة ومباشرة (بدون حشو).
+                    ابدأ بالغلاف، ثم الملخص التنفيذي، ثم التشخيص، ثم القرارات.
                     """
                     with st.spinner("المحرك الذكي يقوم بالصياغة..."):
                         res = model.generate_content(prompt)
@@ -565,7 +564,7 @@ def platform_page():
                         save_db(db)
                         st.success("تم الاعتماد بنجاح! تم خصم تقرير من رصيدك.")
                 except Exception as e:
-                    st.error(f"خطأ تقني: {e}")
+                    st.error(f"خطأ تقني في الاتصال بجوجل: {e}")
                     
         if st.button("➡️ رجوع للسابق", key="btn_prev_3"):
             st.session_state.step = 2
